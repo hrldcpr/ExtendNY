@@ -23,7 +23,7 @@
 
       function initialize() {
         map = new google.maps.Map(document.getElementById('map_canvas'), {
-          zoom: 13,
+          zoom: 12,
           disableDefaultUI: true,
           zoomControl: true,
           mapTypeId: mapTypeId,
@@ -82,48 +82,31 @@
           });
         }
 
-        var ave = [new google.maps.LatLng(40.72635220924176, -73.98622423862304),
-                   new google.maps.LatLng(40.79854596813113, -73.9336100265869)];
-        var st = [new google.maps.LatLng(40.73123043863883, -73.98261934970702),
-                  new google.maps.LatLng(40.742091344736004, -74.00823981021728)];
-        var dAve = [0.0012026417057811045, -0.0028467178344726562];
-        var dSt = [0.0006344499132364601, 0.0004629431099727236];
-        for(var i=0;i<111;i++) {
-          drawLine(st);
-          st = [new google.maps.LatLng(st[0].lat()+dSt[0], st[0].lng()+dSt[1]),
-                new google.maps.LatLng(st[1].lat()+dSt[0], st[1].lng()+dSt[1])];
-        }
-        for(var i=0;i<10;i++) {
-          drawLine(ave, true);
-          ave = [new google.maps.LatLng(ave[0].lat()+dAve[0], ave[0].lng()+dAve[1]),
-                new google.maps.LatLng(ave[1].lat()+dAve[0], ave[1].lng()+dAve[1])];
-	}
-
         var manhattan = new google.maps.LatLng(40.72250297044599, -73.98848389102079);
         var antipode = new google.maps.LatLng(-manhattan.lat(), manhattan.lng()+180);
-        //drawCircle(antipode, 1000000);
-        //drawLine([manhattan, antipode], true);
-        //var antipode2 = new google.maps.LatLng(-manhattan.lat()-0.1, manhattan.lng()+180+0.1);
-        //drawCircle(antipode2, 1000000);
-        //drawLine([manhattan, antipode2], true);
+        var radius = 6378137; // google maps earth radius, in meters
+        var circumference = 2*Math.PI*radius;
+        var theta = 28.5; // 1st ave has a heading of 28.5 degrees:
+        var northPole = google.maps.geometry.spherical.computeOffset(manhattan, circumference/4, theta);
+        var southPole = google.maps.geometry.spherical.computeOffset(manhattan, -circumference/4, theta);
 
-        var earthCircumference = 40000000; //40,000 km
-        var pole = google.maps.geometry.spherical.computeOffset(manhattan, earthCircumference/4, 28.5);
-        for(var i=0; i<16; i++) {
-          var manhattanN = google.maps.geometry.spherical.computeOffset(manhattan, i*earthCircumference/16, 28.5);
-          drawCircle(manhattanN, 1000000);
-          drawLine([manhattan, manhattanN], true);
+        // avenues are lines:
+        for(var i=-50; i<50; i++) {
+          var ave = google.maps.geometry.spherical.computeOffset(manhattan, i*circumference/100, theta-90);
+          drawLine([ave, northPole], true);
+          drawLine([ave, southPole], true);
         }
-        for(var i=1; i<=50; i++) {
-          drawCircle(pole, i*earthCircumference/100, "#000000", false);
+        // streets are circles:
+        for(var i=1; i<100; i++) {
+          drawCircle(northPole, i*circumference/200, "#000000", false);
         }
 
         var oldLine;
         google.maps.event.addListener(map, 'bounds_changed', function() {
           var bounds = map.getBounds();
-          var line = drawLine([bounds.getNorthEast(),bounds.getSouthWest()]);
-          if (oldLine) oldLine.setMap(null);
-          oldLine = line;
+          //var line = drawLine([bounds.getNorthEast(),bounds.getSouthWest()]);
+          //if (oldLine) oldLine.setMap(null);
+          //oldLine = line;
         });
 
         google.maps.event.addListener(map, 'click', function(evt) {
