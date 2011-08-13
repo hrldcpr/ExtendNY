@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Google Maps JavaScript API v3 Example: Map Geolocation</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map_canvas { height: 100% }
+    </style>
+    <!--
+    Include the maps javascript with sensor=true because this code is using a
+    sensor (a GPS locator) to determine the user's location.
+    See: http://code.google.com/apis/maps/documentation/javascript/basics.html#SpecifyingSensor
+    -->
+    <script type="text/javascript"
+        src="http://maps.googleapis.com/maps/api/js?libraries=geometry&sensor=true"></script>
+
+    <script type="text/javascript">
+      var map;
+      var mapTypeId = 'nycentric';
+
+      function initialize() {
+        map = new google.maps.Map(document.getElementById('map_canvas'), {
+          zoom: 13,
+          disableDefaultUI: true,
+          zoomControl: true,
+          mapTypeId: mapTypeId,
+        });
+  	map.mapTypes.set(mapTypeId, new google.maps.StyledMapType([
+  	  {
+  	    featureType: "road",
+  	    stylers: [{visibility: "off"}]
+  	  },
+  	]));
+
+        // Try HTML5 geolocation
+        if(navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var pos = new google.maps.LatLng(position.coords.latitude,
+                                             position.coords.longitude);
+
+            var infowindow = new google.maps.InfoWindow({
+              map: map,
+              position: pos,
+              content: 'Location found using HTML5.'
+            });
+
+            map.setCenter(pos);
+          }, function() {
+            handleNoGeolocation(true);
+          });
+        } else {
+          // Browser doesn't support Geolocation
+          handleNoGeolocation(false);
+        }
+
+        function drawLine(path, geodesic) {
+	  return new google.maps.Polyline({
+	    path: path,
+            clickable: false,
+            geodesic: geodesic || false,
+	    //strokeColor: "#000000",
+	    strokeOpacity: 0.5,
+	    strokeWeight: 1,
+            map: map,
+          });
+        }
+
+        function drawCircle(center, radius, stroke, fill) {
+    	  return new google.maps.Circle({
+            clickable: false,
+    	    strokeColor: stroke || "#FF0000",
+    	    strokeOpacity: 0.5,
+    	    strokeWeight: 1,
+    	    fillColor: fill || "#FF0000",
+    	    fillOpacity: fill===false ? 0 : 0.5,
+    	    center: center,
+    	    radius: radius,
+    	    map: map,
+          });
+        }
+
+        var ave = [new google.maps.LatLng(40.72635220924176, -73.98622423862304),
+                   new google.maps.LatLng(40.79854596813113, -73.9336100265869)];
+        var st = [new google.maps.LatLng(40.73123043863883, -73.98261934970702),
+                  new google.maps.LatLng(40.742091344736004, -74.00823981021728)];
+        var dAve = [0.0012026417057811045, -0.0028467178344726562];
+        var dSt = [0.0006344499132364601, 0.0004629431099727236];
+        for(var i=0;i<111;i++) {
+          drawLine(st);
+          st = [new google.maps.LatLng(st[0].lat()+dSt[0], st[0].lng()+dSt[1]),
+                new google.maps.LatLng(st[1].lat()+dSt[0], st[1].lng()+dSt[1])];
+        }
+        for(var i=0;i<10;i++) {
+          drawLine(ave, true);
+          ave = [new google.maps.LatLng(ave[0].lat()+dAve[0], ave[0].lng()+dAve[1]),
+                new google.maps.LatLng(ave[1].lat()+dAve[0], ave[1].lng()+dAve[1])];
+	}
+
+        var manhattan = new google.maps.LatLng(40.72250297044599, -73.98848389102079);
+        var antipode = new google.maps.LatLng(-manhattan.lat(), manhattan.lng()+180);
+        //drawCircle(antipode, 1000000);
+        //drawLine([manhattan, antipode], true);
+        //var antipode2 = new google.maps.LatLng(-manhattan.lat()-0.1, manhattan.lng()+180+0.1);
+        //drawCircle(antipode2, 1000000);
+        //drawLine([manhattan, antipode2], true);
+
+        var earthCircumference = 40000000; //40,000 km
+        var pole = google.maps.geometry.spherical.computeOffset(manhattan, earthCircumference/4, 28.5);
+        for(var i=0; i<16; i++) {
+          var manhattanN = google.maps.geometry.spherical.computeOffset(manhattan, i*earthCircumference/16, 28.5);
+          drawCircle(manhattanN, 1000000);
+          drawLine([manhattan, manhattanN], true);
+        }
+        for(var i=1; i<=50; i++) {
+          drawCircle(pole, i*earthCircumference/100, "#000000", false);
+        }
+
+        var oldLine;
+        google.maps.event.addListener(map, 'bounds_changed', function() {
+          var bounds = map.getBounds();
+          var line = drawLine([bounds.getNorthEast(),bounds.getSouthWest()]);
+          if (oldLine) oldLine.setMap(null);
+          oldLine = line;
+        });
+
+        google.maps.event.addListener(map, 'click', function(evt) {
+          console.log(evt.latLng.toString());
+        });
+      }
+
+      function handleNoGeolocation(errorFlag) {
+        if (errorFlag) {
+          var content = 'Error: The Geolocation service failed.';
+        } else {
+          var content = 'Error: Your browser doesn\'t support geolocation.';
+        }
+
+        var options = {
+          map: map,
+          position: new google.maps.LatLng(60, 105),
+          content: content
+        };
+
+        var infowindow = new google.maps.InfoWindow(options);
+        map.setCenter(options.position);
+      }
+
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+  </head>
+  <body>
+    <div id="map_canvas" style="width:100%; height:100%;"></div>
+  </body>
+</html>
