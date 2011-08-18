@@ -7,13 +7,17 @@ var theta = 28.8; // 1st ave has a heading of 28.5 degrees:
 var northPole = google.maps.geometry.spherical.computeOffset(manhattan, circumference/4, theta);
 var southPole = google.maps.geometry.spherical.computeOffset(manhattan, circumference/4, theta+180);
 var nAves = 160000;
-var nStreets = 127000;
+var nStreets = 254000;
+var lgAves = Math.ceil(Math.log(nAves) / Math.LN2);
+var lgStreets = Math.ceil(Math.log(nAves) / Math.LN2);
+var nAves2 = 2<<lgAves;
+var nStreets2 = 2<<lgAves;
 
 function getAveOrigin(i) {
     return google.maps.geometry.spherical.computeOffset(manhattan, i*circumference/nAves, theta-90);
 }
 
-function getAve(i, map) {
+function getAveLine(i, map) {
     return new google.maps.Polyline({
 	path: [southPole, getAveOrigin(i), northPole],
 	geodesic: true,
@@ -25,10 +29,10 @@ function getAve(i, map) {
     });
 }
 
-function getStreet(i, map) {
+function getStreetCircle(i, map) {
     return new google.maps.Circle({
 	center: southPole,
-	radius: circumference/4 + i*circumference/4/nStreets,
+	radius: circumference/4 + i*circumference/2/nStreets,
 	clickable: false,
 	strokeColor: '#ffffff',
 	strokeOpacity: 0.6,
@@ -37,6 +41,53 @@ function getStreet(i, map) {
 	map: map,
     });
 }
+
+function findIntersection(pos) {
+    var d = google.maps.geometry.spherical.computeDistanceBetween(southPole, pos);
+    var street = (d - circumference/4)*nStreets*2/circumference;
+
+    // binary search for closest avenue:
+    var ave = 0;
+    for(var step=nAves/2; step>=0.5; step/=2) {
+	if (google.maps.geometry.spherical.computeDistanceBetween(getAveOrigin(ave-1), pos)
+	    < google.maps.geometry.spherical.computeDistanceBetween(getAveOrigin(ave+1), pos))
+	    ave -= step;
+	else
+	    ave += step;
+    }
+
+    return {street: Math.round(street),
+	    ave: Math.round(ave)};
+}
+
+function getOrdinal(n) {
+    var suffix = 'th';
+    var tens = n%100;
+    if (tens<=3 || tens>=21) {
+	var ones = n%10;
+	if (ones==1) suffix = 'st';
+	if (ones==2) suffix = 'nd';
+	if (ones==3) suffix = 'rd';
+    }
+    n += '';
+    var pat = /(\d+)(\d{3})/;
+    while (pat.test(n))
+	n = n.replace(pat, '$1,$2');
+    return n+suffix;
+}
+
+function getIntersectionString(pos) {
+    var street = pos.street, ave = pos.ave;
+    if (street==0) street = 1;
+    if (ave==0) ave = 1;
+    var south = street<0;
+    if (south) street = -street;
+    var east = ave<0;
+    if (east) ave = -ave;
+    return (south?'S ':'')+getOrdinal(street)+' Street and '
+	+(east?'E ':'')+getOrdinal(ave)+' Avenue';
+}
+
 
 function initialize() {
     var mapTypeId = 'nycentric';
@@ -62,11 +113,49 @@ function initialize() {
 	});
     }
 
+    var grid = {street:{}, ave:{}};
+    var getOverlay = {street:getStreetCircle, ave:getAveLine};
+    var nRoads2 = {street:nStreets2, ave:nAves2};
+    function showGrid() {
+	var zoom = map.getZoom() + 2;
+	var center = findIntersection(map.getCenter());
+
+	for(var type in grid) {
+	    var roads = grid[type];
+	    // use powers of 2 so that half of streets will remain when zooming:
+	    var dRoad = Math.ceil( nRoads2[type] / (2<<zoom) );
+	    var road = Math.round(center[type]/dRoad) * dRoad;
+	    console.log(dRoad);
+	    console.log(road);
+
+	    // invalidate old roads:
+	    for(var i in roads)
+		roads[i].clip = true;
+
+	    for(var k=-20; k<20; k++) {
+		var i = road + k*dRoad;
+		if (i in roads) // reuse old road
+		    roads[i].clip = false;
+		else
+		    roads[i] = {overlay: getOverlay[type](i, map)};
+	    }
+
+	    // remove clipped roads:
+	    for(var i in roads) {
+		if (roads[i].clip) {
+		    roads[i].overlay.setMap(null);
+		    delete roads[i];
+		}
+	    }
+	}
+    }
+
     // Try HTML5 geolocation
     if(navigator.geolocation) {
 	navigator.geolocation.getCurrentPosition(function(pos) {
 	    pos = new google.maps.LatLng(pos.coords.latitude,pos.coords.longitude);
-	    //showInfo('You are here.', pos);
+	    var intersection = getIntersectionString(findIntersection(pos));
+	    showInfo('You are here.<br/>'+intersection, pos);
 	    map.setCenter(pos);
 	    map.setZoom(12);
 	}, function() {
@@ -78,28 +167,13 @@ function initialize() {
 	//showInfo("Your browser doesn't support geolocation.<br/>Here is New York City.");
     }
 
-    var grid = [];
-    google.maps.event.addListener(map, 'bounds_changed', function() {
-	var x;
-	while(x = grid.pop(0))
-	    x.setMap(null);
-
-	var zoom = map.getZoom();
-	var dAve = Math.ceil( nAves / (2<<zoom) );
-	var dStreet = Math.ceil( nStreets / (2<<zoom) );
-	console.log(dAve);
-	console.log(dStreet);
-	// streets are circles:
-	for(var i=0; i<20*dStreet; i+=dStreet)
-	    grid.push( getStreet(i, map) );
-	// avenues are lines:
-	for(var i=0; i<20*dAve; i+=dAve)
-	    grid.push( getAve(i, map) );
-    });
+    google.maps.event.addListener(map, 'dragend', showGrid);
+    google.maps.event.addListener(map, 'zoom_changed', showGrid);
 
     google.maps.event.addListener(map, 'click', function(evt) {
 	console.log(evt.latLng.toString());
-	//showInfo(evt.latLng.toString(), evt.latLng);
+	console.log(getIntersectionString(findIntersection(evt.latLng)));
+	//showInfo(getIntersectionString(findIntersection(evt.latLng)), evt.latLng);
     });
 }
 
