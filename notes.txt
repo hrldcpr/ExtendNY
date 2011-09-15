@@ -27,6 +27,7 @@ aves: (832,-351), (834,-351)
 newyorkextended.com
 knewyour.com
 manhatting.com
+extendny.com
 
 =drawing=
 avenues are geodesics from "equator" to "poles"

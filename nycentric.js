@@ -1,19 +1,27 @@
 
-var manhattan = new google.maps.LatLng(40.72328050717967, -73.98846042169191);
-var antipode = new google.maps.LatLng(-manhattan.lat(), manhattan.lng()+180);
 var radius = 6378137; // google maps earth radius, in meters
-var circumference = 2*Math.PI*radius;
-var theta = 28.8; // 1st ave has a heading of 28.5 degrees:
-var northPole = google.maps.geometry.spherical.computeOffset(manhattan, circumference/4, theta);
-var southPole = google.maps.geometry.spherical.computeOffset(manhattan, circumference/4, theta+180);
+var circumference = 2 * Math.PI * radius;
+
+var manhattan = new google.maps.LatLng(40.72328050717967, -73.98846042169191);
+var theta = 28.8; // 1st ave heading in degrees
 var nAves = 160000;
 var nStreets = 254000;
-var lgAves = Math.ceil(Math.log(nAves) / Math.LN2);
-var lgStreets = Math.ceil(Math.log(nAves) / Math.LN2);
-var nAves2 = 2<<lgAves;
-var nStreets2 = 2<<lgAves;
+
+var antipode = new google.maps.LatLng(-manhattan.lat(), manhattan.lng()+180);
+var northPole = google.maps.geometry.spherical.computeOffset(manhattan, circumference/4, theta);
+var southPole = google.maps.geometry.spherical.computeOffset(manhattan, circumference/4, theta+180);
+var lgAves = Math.ceil( Math.log(nAves) / Math.LN2 );
+var lgStreets = Math.ceil( Math.log(nStreets) / Math.LN2 );
+var nAves2 = 1 << lgAves;
+var nStreets2 = 1 << lgStreets;
+
+console.log(nAves);
+console.log(nAves2);
+console.log(nStreets);
+console.log(nStreets2);
 
 function getAveOrigin(i) {
+    // all nAves go around the world, i.e. a distance of circumference:
     return google.maps.geometry.spherical.computeOffset(manhattan, i*circumference/nAves, theta-90);
 }
 
@@ -32,6 +40,8 @@ function getAveLine(i, map) {
 function getStreetCircle(i, map) {
     return new google.maps.Circle({
 	center: southPole,
+	// lowest street (-nStreets/2) is at south pole,
+	// and 0th street is at equator, circumference/4 from south pole:
 	radius: circumference/4 + i*circumference/2/nStreets,
 	clickable: false,
 	strokeColor: '#ffffff',
@@ -44,6 +54,7 @@ function getStreetCircle(i, map) {
 
 function findIntersection(pos) {
     var d = google.maps.geometry.spherical.computeDistanceBetween(southPole, pos);
+    // inverse of getStreetCircle:
     var street = (d - circumference/4)*nStreets*2/circumference;
 
     // binary search for closest avenue:
@@ -106,7 +117,7 @@ function initialize() {
     ]));
 
     function showInfo(content, position) {
-	new google.maps.InfoWindow({
+	return new google.maps.InfoWindow({
 	    map: map,
 	    position: position || map.getCenter(),
 	    content: content,
@@ -167,8 +178,15 @@ function initialize() {
 	//showInfo("Your browser doesn't support geolocation.<br/>Here is New York City.");
     }
 
-    google.maps.event.addListener(map, 'dragend', showGrid);
+    showGrid();
+    var centerInfo = showInfo(getIntersectionString(findIntersection(map.getCenter())), map.getCenter());
+
     google.maps.event.addListener(map, 'zoom_changed', showGrid);
+    google.maps.event.addListener(map, 'dragend', function() {
+	showGrid();
+	centerInfo.setPosition(map.getCenter());
+	centerInfo.setContent(getIntersectionString(findIntersection(map.getCenter())));
+    });
 
     google.maps.event.addListener(map, 'click', function(evt) {
 	console.log(evt.latLng.toString());
