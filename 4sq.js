@@ -7,4 +7,4 @@ function getQueryString() {
     return result;
 }
 
-console.log(result);
+console.log(getQueryString());
