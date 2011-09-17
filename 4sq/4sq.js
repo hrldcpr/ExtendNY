@@ -12,7 +12,6 @@ $(function() {
 				      function (checkin) {
 					  if (checkin.venue && checkin.venue.id)
 					      return "4sq_"+checkin.venue.id;
-					  else return null;
 				      }).join(",");
 		    window.location = "http://api.hunch.com/api/v1/get-recommendations"+window.location.search+"&likes="+likes;
 		}});
