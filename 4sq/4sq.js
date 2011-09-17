@@ -8,12 +8,12 @@ $(function() {
 	$.ajax({url: "https://api.foursquare.com/v2/users/self/checkins?oauth_token="+token,
 		dataType: "jsonp",
 		success: function(data) {
-		    var likes = [];
-		    $.each(data.response.checkins.items, function (i, checkin) {
-			if (checkin.venue && checkin.venue.id)
-			    likes.push("4sq_"+checkin.venue.id);
-		    });
-		    likes = likes.join(",");
+		    var likes = $.map(data.response.checkins.items,
+				      function (checkin) {
+					  if (checkin.venue && checkin.venue.id)
+					      return "4sq_"+checkin.venue.id;
+					  else return null;
+				      }).join(",");
 		    window.location = "http://api.hunch.com/api/v1/get-recommendations"+window.location.search+"&likes="+likes;
 		}});
     }
