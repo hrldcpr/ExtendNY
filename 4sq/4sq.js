@@ -8,11 +8,10 @@ $(function() {
 	$.ajax({url: "https://api.foursquare.com/v2/users/self/checkins?oauth_token="+token,
 		dataType: "jsonp",
 		success: function(data) {
-		    var likes = $.map(data.response.checkins.items,
-				      function (checkin) {
-					  if (checkin.venue && checkin.venue.id)
-					      return "4sq_"+checkin.venue.id;
-				      }).join(",");
+		    var likes = $.map(data.response.checkins.items, function (checkin) {
+			if (checkin.venue && checkin.venue.id)
+			    return "4sq_"+checkin.venue.id;
+		    }).join(",");
 		    window.location = "http://api.hunch.com/api/v1/get-recommendations"+window.location.search+"&likes="+likes;
 		}});
     }
