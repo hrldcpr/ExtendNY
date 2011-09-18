@@ -2,35 +2,24 @@
 <html>
   <head>
     <title>NYCentric</title>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <meta charset="UTF-8">
-    <style type="text/css">
-      html { height: 100% }
-      body { height: 100%; margin: 0; padding: 0; }
-      #header { width: 100%; height: 48px; background: #888; color: white; text-align: center; border-bottom: 2px solid #444; }
-      #map { position: absolute; width: 100%; top: 50px; bottom: 0px; }
-      #address-control { padding: 5px; }
-      #location-control { padding: 5px; }
-      #location { width: 22px; height: 22px; background-image: url("my_location.png"); }
-      #location.inactive { background-position: 0px 0px; }
-      #location.loading { background-position: 0px -22px; }
-      #location.active { background-position: 0px -44px; }
-    </style>
-    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=geometry&sensor=true">
-    </script>
-    <script type="text/javascript" src="nycentric.js">
-    </script>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <meta charset="UTF-8"/>
+    <link href="nycentric.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=geometry&sensor=true"></script>
+    <script type="text/javascript" src="nycentric.js"></script>
   </head>
   <body>
     <div id="header">
-      NYCentric
+      The Manhattan Grid extended to every point on Earth.
     </div>
     <div id="map"></div>
     <div id="address-control">
       <input id="address" type="text" value="New York, NY"/>
     </div>
     <div id="location-control">
-      <div id="location" class="inactive"></div>
+      <div id="location" class="inactive" title="Geolocate">
+	<div class="spinner"></div>
+      </div>
     </div>
   </body>
 </html>

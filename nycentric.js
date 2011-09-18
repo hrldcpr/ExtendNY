@@ -116,7 +116,13 @@ function initialize() {
 	},
     ]));
 
-    map.controls[google.maps.ControlPosition.TOP_LEFT].push(document.getElementById('location-control'));
+    var locationDiv,locationSpinner;
+    if(navigator.geolocation) {
+	locationDiv = document.getElementById('location');
+	locationSpinner = locationDiv.getElementsByClassName('spinner')[0];
+	locationDiv.style.display = 'block';
+	map.controls[google.maps.ControlPosition.TOP_LEFT].push(document.getElementById('location-control'));
+    }
     map.controls[google.maps.ControlPosition.TOP_LEFT].push(document.getElementById('address-control'));
 
     function showInfo(content, position) {
@@ -164,27 +170,35 @@ function initialize() {
 	}
     }
 
-    // Try HTML5 geolocation
-    if(navigator.geolocation) {
+    function geolocate() {
+	locationDiv.className = 'loading';
+	locationSpinner.style.display = 'block';
 	navigator.geolocation.getCurrentPosition(function(pos) {
 	    pos = new google.maps.LatLng(pos.coords.latitude,pos.coords.longitude);
 	    var intersection = getIntersectionString(findIntersection(pos));
 	    showInfo('You are here.<br/>'+intersection, pos);
 	    map.setCenter(pos);
 	    map.setZoom(12);
+	    locationSpinner.style.display = 'none';
+	    locationDiv.className = 'active';
 	}, function() {
 	    console.log('Geolocation failed.');
-	    //showInfo('Geolocation failed.<br/>Here is New York City.');
+	    locationSpinner.style.display = 'none';
+	    locationDiv.className = 'inactive';
 	});
-    } else {
-	console.log("Browser doesn't support geolocation.");
-	//showInfo("Your browser doesn't support geolocation.<br/>Here is New York City.");
     }
 
     showGrid();
     var centerInfo = showInfo(getIntersectionString(findIntersection(map.getCenter())), map.getCenter());
 
     google.maps.event.addListener(map, 'zoom_changed', showGrid);
+    if (locationDiv) {
+	google.maps.event.addListener(map, 'dragstart', function() {
+	    if (locationSpinner.style.display=='none')
+		// not currently geolocating
+		locationDiv.className = 'inactive';
+	});
+    }
     google.maps.event.addListener(map, 'dragend', function() {
 	showGrid();
 	centerInfo.setPosition(map.getCenter());
@@ -196,6 +210,10 @@ function initialize() {
 	console.log(getIntersectionString(findIntersection(evt.latLng)));
 	//showInfo(getIntersectionString(findIntersection(evt.latLng)), evt.latLng);
     });
+
+    google.maps.event.addDomListener(document.getElementById('location'), 'click', geolocate);
+
+    geolocate();
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);
