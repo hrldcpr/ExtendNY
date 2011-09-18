@@ -5,7 +5,7 @@ $(function() {
     }
     else if (window.location.hash.substr(0,14)=="#access_token=") {
 	var token = window.location.hash.substr(14);
-	$.ajax({url: "https://api.foursquare.com/v2/users/self/checkins?oauth_token="+token,
+	$.ajax({url: "https://api.foursquare.com/v2/users/self/checkins?limit=250&oauth_token="+token,
 		dataType: "jsonp",
 		success: function(data) {
 		    var likes = $.map(data.response.checkins.items, function (checkin) {
