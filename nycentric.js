@@ -102,7 +102,7 @@ function getIntersectionString(pos) {
 
 function initialize() {
     var mapTypeId = 'nycentric';
-    var map = new google.maps.Map(document.getElementById('map_canvas'), {
+    var map = new google.maps.Map(document.getElementById('map'), {
 	disableDefaultUI: true,
 	zoomControl: true,
 	mapTypeId: mapTypeId,
@@ -115,6 +115,9 @@ function initialize() {
 	    stylers: [{visibility: 'off'}]
 	},
     ]));
+
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(document.getElementById('location-control'));
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(document.getElementById('address-control'));
 
     function showInfo(content, position) {
 	return new google.maps.InfoWindow({
