@@ -226,9 +226,9 @@ function initialize() {
     });
 
     google.maps.event.addDomListener(document.getElementById('location'), 'click', geolocate);
-    google.maps.event.addDomListener(document.getElementById('address-form'), 'submit', function() {
+    google.maps.event.addDomListener(document.getElementById('address-form'), 'submit', function(e) {
 	    geocode();
-	    return false;
+	    e.returnValue = false;
 	});
 
     geolocate();
