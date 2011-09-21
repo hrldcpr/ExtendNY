@@ -170,6 +170,12 @@ function initialize() {
 	}
     }
 
+    function moved() {
+	showGrid();
+	centerInfo.setPosition(map.getCenter());
+	centerInfo.setContent(getIntersectionString(findIntersection(map.getCenter())));
+    }
+
     function geolocate() {
 	locationDiv.className = 'loading';
 	locationSpinner.style.display = 'block';
@@ -188,6 +194,18 @@ function initialize() {
 	});
     }
 
+    var geocoder = new google.maps.Geocoder();
+    function geocode() {
+	var address = document.getElementById("address").value;
+	geocoder.geocode({address: address}, function(results, status) {
+		if (status == google.maps.GeocoderStatus.OK) {
+		    map.setCenter(results[0].geometry.location);
+		    moved();
+		}
+		else alert("Geocode was not successful for the following reason: " + status);
+	    });
+    }
+
     showGrid();
     var centerInfo = showInfo(getIntersectionString(findIntersection(map.getCenter())), map.getCenter());
 
@@ -199,11 +217,7 @@ function initialize() {
 		locationDiv.className = 'inactive';
 	});
     }
-    google.maps.event.addListener(map, 'dragend', function() {
-	showGrid();
-	centerInfo.setPosition(map.getCenter());
-	centerInfo.setContent(getIntersectionString(findIntersection(map.getCenter())));
-    });
+    google.maps.event.addListener(map, 'dragend', moved);
 
     google.maps.event.addListener(map, 'click', function(evt) {
 	console.log(evt.latLng.toString());
@@ -212,6 +226,7 @@ function initialize() {
     });
 
     google.maps.event.addDomListener(document.getElementById('location'), 'click', geolocate);
+    google.maps.event.addDomListener(document.getElementById('address-form'), 'submit', geocode);
 
     geolocate();
 }
