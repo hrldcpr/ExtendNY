@@ -226,7 +226,10 @@ function initialize() {
     });
 
     google.maps.event.addDomListener(document.getElementById('location'), 'click', geolocate);
-    google.maps.event.addDomListener(document.getElementById('address-form'), 'submit', geocode);
+    google.maps.event.addDomListener(document.getElementById('address-form'), 'submit', function() {
+	    geocode();
+	    return false;
+	});
 
     geolocate();
 }
