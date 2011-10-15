@@ -1,17 +1,19 @@
+var gmaps = google.maps;
+var gspherical = gmaps.geometry.spherical;
 
 var radius = 6378137; // google maps earth radius, in meters
 var circumference = 2 * Math.PI * radius;
 
-var manhattan = new google.maps.LatLng(40.72328050717967, -73.98846042169191);
+var manhattan = new gmaps.LatLng(40.72328050717967, -73.98846042169191);
 var theta = 28.8; // 1st ave heading in degrees
 var nAves = 160000;
 var nStreets = 254000;
 
-var antipode = new google.maps.LatLng(-manhattan.lat(), manhattan.lng()+180);
-var northPole = google.maps.geometry.spherical.computeOffset(manhattan, circumference/4, theta);
-var southPole = google.maps.geometry.spherical.computeOffset(manhattan, circumference/4, theta+180);
-var lgAves = Math.ceil( Math.log(nAves) / Math.LN2 );
-var lgStreets = Math.ceil( Math.log(nStreets) / Math.LN2 );
+var antipode = new gmaps.LatLng(-manhattan.lat(), manhattan.lng() + 180);
+var northPole = gspherical.computeOffset(manhattan, circumference / 4, theta);
+var southPole = gspherical.computeOffset(manhattan, circumference / 4, theta + 180);
+var lgAves = Math.ceil(Math.log(nAves) / Math.LN2);
+var lgStreets = Math.ceil(Math.log(nStreets) / Math.LN2);
 var nAves2 = 1 << lgAves;
 var nStreets2 = 1 << lgStreets;
 
@@ -21,12 +23,12 @@ console.log(nStreets);
 console.log(nStreets2);
 
 function getAveOrigin(i) {
-    // all nAves go around the world, i.e. a distance of circumference:
-    return google.maps.geometry.spherical.computeOffset(manhattan, i*circumference/nAves, theta-90);
+    // at equator, nAves should go a distance of `circumference`:
+    return gspherical.computeOffset(manhattan, i * circumference / nAves, theta - 90);
 }
 
 function getAveLine(i, map) {
-    return new google.maps.Polyline({
+    return new gmaps.Polyline({
 	path: [southPole, getAveOrigin(i), northPole],
 	geodesic: true,
 	clickable: false,
@@ -37,12 +39,17 @@ function getAveLine(i, map) {
     });
 }
 
+funciton getStreetRadius(i) {
+    // returns radius from south pole.
+    // lowest street (-nStreets/2) is at south pole with 0 radius,
+    // and 0th street is at equator, circumference/4 from south pole:
+    return i*circumference/2/nStreets + circumference/4;
+}
+
 function getStreetCircle(i, map) {
-    return new google.maps.Circle({
+    return new gmaps.Circle({
 	center: southPole,
-	// lowest street (-nStreets/2) is at south pole,
-	// and 0th street is at equator, circumference/4 from south pole:
-	radius: circumference/4 + i*circumference/2/nStreets,
+	radius: getStreetRadius(i),
 	clickable: false,
 	strokeColor: '#ffffff',
 	strokeOpacity: 0.6,
@@ -53,15 +60,15 @@ function getStreetCircle(i, map) {
 }
 
 function findIntersection(pos) {
-    var d = google.maps.geometry.spherical.computeDistanceBetween(southPole, pos);
+    var d = gspherical.computeDistanceBetween(southPole, pos);
     // inverse of getStreetCircle:
     var street = (d - circumference/4)*nStreets*2/circumference;
 
     // binary search for closest avenue:
     var ave = 0;
     for(var step=nAves/2; step>=0.5; step/=2) {
-	if (google.maps.geometry.spherical.computeDistanceBetween(getAveOrigin(ave-1), pos)
-	    < google.maps.geometry.spherical.computeDistanceBetween(getAveOrigin(ave+1), pos))
+	if (gspherical.computeDistanceBetween(getAveOrigin(ave-1), pos)
+	    < gspherical.computeDistanceBetween(getAveOrigin(ave+1), pos))
 	    ave -= step;
 	else
 	    ave += step;
@@ -102,14 +109,14 @@ function getIntersectionString(pos) {
 
 function initialize() {
     var mapTypeId = 'nycentric';
-    var map = new google.maps.Map(document.getElementById('map'), {
+    var map = new gmaps.Map(document.getElementById('map'), {
 	disableDefaultUI: true,
 	zoomControl: true,
 	mapTypeId: mapTypeId,
 	zoom: 2,
 	center: manhattan,
     });
-    map.mapTypes.set(mapTypeId, new google.maps.StyledMapType([
+    map.mapTypes.set(mapTypeId, new gmaps.StyledMapType([
 	{
 	    featureType: 'road',
 	    stylers: [{visibility: 'off'}]
@@ -121,12 +128,12 @@ function initialize() {
 	locationDiv = document.getElementById('location');
 	locationSpinner = locationDiv.getElementsByClassName('spinner')[0];
 	locationDiv.style.display = 'block';
-	map.controls[google.maps.ControlPosition.TOP_LEFT].push(document.getElementById('location-control'));
+	map.controls[gmaps.ControlPosition.TOP_LEFT].push(document.getElementById('location-control'));
     }
-    map.controls[google.maps.ControlPosition.TOP_LEFT].push(document.getElementById('address-control'));
+    map.controls[gmaps.ControlPosition.TOP_LEFT].push(document.getElementById('address-control'));
 
     function showInfo(content, position) {
-	return new google.maps.InfoWindow({
+	return new gmaps.InfoWindow({
 	    map: map,
 	    position: position || map.getCenter(),
 	    content: content,
@@ -180,7 +187,7 @@ function initialize() {
 	locationDiv.className = 'loading';
 	locationSpinner.style.display = 'block';
 	navigator.geolocation.getCurrentPosition(function(pos) {
-	    pos = new google.maps.LatLng(pos.coords.latitude,pos.coords.longitude);
+	    pos = new gmaps.LatLng(pos.coords.latitude,pos.coords.longitude);
 	    var intersection = getIntersectionString(findIntersection(pos));
 	    showInfo('You are here.<br/>'+intersection, pos);
 	    map.setCenter(pos);
@@ -194,11 +201,11 @@ function initialize() {
 	});
     }
 
-    var geocoder = new google.maps.Geocoder();
+    var geocoder = new gmaps.Geocoder();
     function geocode() {
 	var address = document.getElementById("address").value;
 	geocoder.geocode({address: address}, function(results, status) {
-		if (status == google.maps.GeocoderStatus.OK) {
+		if (status == gmaps.GeocoderStatus.OK) {
 		    map.setCenter(results[0].geometry.location);
 		    moved();
 		}
@@ -209,24 +216,24 @@ function initialize() {
     showGrid();
     var centerInfo = showInfo(getIntersectionString(findIntersection(map.getCenter())), map.getCenter());
 
-    google.maps.event.addListener(map, 'zoom_changed', showGrid);
+    gmaps.event.addListener(map, 'zoom_changed', showGrid);
     if (locationDiv) {
-	google.maps.event.addListener(map, 'dragstart', function() {
+	gmaps.event.addListener(map, 'dragstart', function() {
 	    if (locationSpinner.style.display=='none')
 		// not currently geolocating
 		locationDiv.className = 'inactive';
 	});
     }
-    google.maps.event.addListener(map, 'dragend', moved);
+    gmaps.event.addListener(map, 'dragend', moved);
 
-    google.maps.event.addListener(map, 'click', function(evt) {
+    gmaps.event.addListener(map, 'click', function(evt) {
 	console.log(evt.latLng.toString());
 	console.log(getIntersectionString(findIntersection(evt.latLng)));
 	//showInfo(getIntersectionString(findIntersection(evt.latLng)), evt.latLng);
     });
 
-    google.maps.event.addDomListener(document.getElementById('location'), 'click', geolocate);
-    google.maps.event.addDomListener(document.getElementById('address-form'), 'submit', function(e) {
+    gmaps.event.addDomListener(document.getElementById('location'), 'click', geolocate);
+    gmaps.event.addDomListener(document.getElementById('address-form'), 'submit', function(e) {
 	    geocode();
 	    e.returnValue = false;
 	});
@@ -234,4 +241,4 @@ function initialize() {
     geolocate();
 }
 
-google.maps.event.addDomListener(window, 'load', initialize);
+gmaps.event.addDomListener(window, 'load', initialize);
