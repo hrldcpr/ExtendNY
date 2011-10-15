@@ -162,7 +162,7 @@ function initialize() {
 	    for(var i in roads)
 		roads[i].clip = true;
 
-	    for(var k=-20; k<20; k++) {
+	    for(var k = -20; k < 20; k++) {
 		var i = road + k*dRoad;
 		if (i in roads) // reuse old road
 		    roads[i].clip = false;
