@@ -9,6 +9,8 @@ var theta = 28.8; // 1st ave heading in degrees
 var nAves = 160000;
 var nStreets = 254000;
 
+var kRoads = 0.5; // affects number of displayed roads
+
 var antipode = new gmaps.LatLng(-manhattan.lat(), manhattan.lng() + 180);
 var northPole = gspherical.computeOffset(manhattan, circumference / 4, theta);
 var southPole = gspherical.computeOffset(manhattan, circumference / 4, theta + 180);
@@ -61,14 +63,14 @@ function getStreetCircle(i, map) {
 
 function findIntersection(pos) {
     var d = gspherical.computeDistanceBetween(southPole, pos);
-    // inverse of getStreetCircle:
-    var street = (d - circumference/4)*nStreets*2/circumference;
+    // inverse of getStreetRadius:
+    var street = (d - circumference/4) * nStreets * 2 / circumference;
 
     // binary search for closest avenue:
     var ave = 0;
-    for(var step=nAves/2; step>=0.5; step/=2) {
-	if (gspherical.computeDistanceBetween(getAveOrigin(ave-1), pos)
-	    < gspherical.computeDistanceBetween(getAveOrigin(ave+1), pos))
+    for(var step = nAves / 2; step >= 0.5; step /= 2) {
+	if (gspherical.computeDistanceBetween(getAveOrigin(ave - 1), pos)
+	    < gspherical.computeDistanceBetween(getAveOrigin(ave + 1), pos))
 	    ave -= step;
 	else
 	    ave += step;
@@ -80,30 +82,31 @@ function findIntersection(pos) {
 
 function getOrdinal(n) {
     var suffix = 'th';
-    var tens = n%100;
-    if (tens<=3 || tens>=21) {
-	var ones = n%10;
-	if (ones==1) suffix = 'st';
-	if (ones==2) suffix = 'nd';
-	if (ones==3) suffix = 'rd';
+    var tens = n % 100;
+    if (tens <= 3 || tens >= 21) {
+	var ones = n % 10;
+	if (ones == 1) suffix = 'st';
+	if (ones == 2) suffix = 'nd';
+	if (ones == 3) suffix = 'rd';
     }
     n += '';
+    // comma-delimit thousands:
     var pat = /(\d+)(\d{3})/;
     while (pat.test(n))
 	n = n.replace(pat, '$1,$2');
-    return n+suffix;
+    return n + suffix;
 }
 
 function getIntersectionString(pos) {
     var street = pos.street, ave = pos.ave;
-    if (street==0) street = 1;
-    if (ave==0) ave = 1;
-    var south = street<0;
+    if (street == 0) street = 1;
+    if (ave == 0) ave = 1;
+    var south = street < 0;
     if (south) street = -street;
-    var east = ave<0;
+    var east = ave < 0;
     if (east) ave = -ave;
-    return (south?'S ':'')+getOrdinal(street)+' Street and '
-	+(east?'E ':'')+getOrdinal(ave)+' Avenue';
+    return (south ? 'S ' : '') + getOrdinal(street) + ' Street and '
+	+ (east ? 'E ' : '') + getOrdinal(ave) + ' Avenue';
 }
 
 
@@ -123,7 +126,7 @@ function initialize() {
 	},
     ]));
 
-    var locationDiv,locationSpinner;
+    var locationDiv, locationSpinner;
     if(navigator.geolocation) {
 	locationDiv = document.getElementById('location');
 	locationSpinner = locationDiv.getElementsByClassName('spinner')[0];
@@ -140,9 +143,9 @@ function initialize() {
 	});
     }
 
-    var grid = {street:{}, ave:{}};
-    var getOverlay = {street:getStreetCircle, ave:getAveLine};
-    var nRoads2 = {street:nStreets2, ave:nAves2};
+    var grid = {street: {}, ave: {}};
+    var getOverlay = {street: getStreetCircle, ave: getAveLine};
+    var nRoads2 = {street: nStreets2, ave: nAves2};
     function showGrid() {
 	var zoom = map.getZoom() + 2;
 	var center = findIntersection(map.getCenter());
@@ -150,8 +153,8 @@ function initialize() {
 	for(var type in grid) {
 	    var roads = grid[type];
 	    // use powers of 2 so that half of streets will remain when zooming:
-	    var dRoad = Math.ceil( nRoads2[type] / (2<<zoom) );
-	    var road = Math.round(center[type]/dRoad) * dRoad;
+	    var dRoad = Math.ceil(kRoad * nRoads2[type] / (1 << zoom));
+	    var road = Math.round(center[type] / dRoad) * dRoad;
 	    console.log(dRoad);
 	    console.log(road);
 
@@ -187,9 +190,9 @@ function initialize() {
 	locationDiv.className = 'loading';
 	locationSpinner.style.display = 'block';
 	navigator.geolocation.getCurrentPosition(function(pos) {
-	    pos = new gmaps.LatLng(pos.coords.latitude,pos.coords.longitude);
+	    pos = new gmaps.LatLng(pos.coords.latitude, pos.coords.longitude);
 	    var intersection = getIntersectionString(findIntersection(pos));
-	    showInfo('You are here.<br/>'+intersection, pos);
+	    showInfo('You are here.<br/>' + intersection, pos);
 	    map.setCenter(pos);
 	    map.setZoom(12);
 	    locationSpinner.style.display = 'none';
@@ -219,7 +222,7 @@ function initialize() {
     gmaps.event.addListener(map, 'zoom_changed', showGrid);
     if (locationDiv) {
 	gmaps.event.addListener(map, 'dragstart', function() {
-	    if (locationSpinner.style.display=='none')
+	    if (locationSpinner.style.display == 'none')
 		// not currently geolocating
 		locationDiv.className = 'inactive';
 	});
@@ -234,9 +237,9 @@ function initialize() {
 
     gmaps.event.addDomListener(document.getElementById('location'), 'click', geolocate);
     gmaps.event.addDomListener(document.getElementById('address-form'), 'submit', function(e) {
-	    geocode();
-	    e.returnValue = false;
-	});
+	geocode();
+	e.returnValue = false;
+    });
 
     geolocate();
 }
