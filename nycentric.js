@@ -33,7 +33,7 @@ function getAveLine(i, map) {
     return new gmaps.Polyline({
 	path: [southPole, getAveOrigin(i), northPole],
 	geodesic: true,
-	clickable: false,
+	zIndex: nStreets*2,
 	strokeColor: '#fffa8a',
 	strokeOpacity: 0.6,
 	strokeWeight: 6,
@@ -52,7 +52,7 @@ function getStreetCircle(i, map) {
     return new gmaps.Circle({
 	center: southPole,
 	radius: getStreetRadius(i),
-	clickable: false,
+	zIndex: nStreets - i,
 	strokeColor: '#ffffff',
 	strokeOpacity: 0.6,
 	strokeWeight: 4,
@@ -146,6 +146,7 @@ function initialize() {
     var grid = {street: {}, ave: {}};
     var getOverlay = {street: getStreetCircle, ave: getAveLine};
     var nRoads2 = {street: nStreets2, ave: nAves2};
+    var selectedRoad = {};
     function showGrid() {
 	var zoom = map.getZoom() + 2;
 	var center = findIntersection(map.getCenter());
@@ -168,9 +169,19 @@ function initialize() {
 		    roads[i].clip = false;
 		else {
 		    roads[i] = {overlay: getOverlay[type](i, map)};
-		    gmaps.event.addListener(line, 'mouseover', function(evt) {
-			console.log(type + i);
-			console.log(evt.latLng);
+		    roads[i].overlay.type = type;
+		    roads[i].overlay.i = i;
+		    gmaps.event.addListener(roads[i].overlay, 'mouseover', function(evt) {
+			var selected = selectedRoad[this.type];
+			if (selected != this) {
+			    if (selected)
+				selected.setOptions({strokeColor: "white"});
+			    selectedRoad[this.type] = this;
+			    this.setOptions({strokeColor: "red"});
+			}
+			console.log(this.type + this.i);
+			console.log(evt.latLng.toString());
+			console.log(getIntersectionString(findIntersection(evt.latLng)));
 		    });
 		}
 	    }
