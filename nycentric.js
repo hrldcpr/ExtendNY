@@ -166,8 +166,13 @@ function initialize() {
 		var i = road + k*dRoad;
 		if (i in roads) // reuse old road
 		    roads[i].clip = false;
-		else
+		else {
 		    roads[i] = {overlay: getOverlay[type](i, map)};
+		    gmaps.event.addListener(line, 'mouseover', function(evt) {
+			console.log(type + i);
+			console.log(evt.latLng);
+		    });
+		}
 	    }
 
 	    // remove clipped roads:
