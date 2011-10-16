@@ -41,7 +41,7 @@ function getAveLine(i, map) {
     });
 }
 
-funciton getStreetRadius(i) {
+function getStreetRadius(i) {
     // returns radius from south pole.
     // lowest street (-nStreets/2) is at south pole with 0 radius,
     // and 0th street is at equator, circumference/4 from south pole:
