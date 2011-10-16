@@ -9,7 +9,7 @@ var theta = 28.8; // 1st ave heading in degrees
 var nAves = 160000;
 var nStreets = 254000;
 
-var kRoads = 0.5; // affects number of displayed roads
+var kRoad = 0.5; // affects number of displayed roads
 
 var antipode = new gmaps.LatLng(-manhattan.lat(), manhattan.lng() + 180);
 var northPole = gspherical.computeOffset(manhattan, circumference / 4, theta);
