@@ -1,6 +1,6 @@
 * {
-    margin: 0;
-    padding: 0;
+    margin: 0px;
+    padding: 0px;
 }
 
 body {
@@ -37,13 +37,18 @@ body {
     height: 100%;
 }
 
-#intersection {
+.sign {
     position: absolute;
-    background: #88ddff;
+    pointer-events: none;
+    color: #DAE3E6;
+    background: #2C7669;
     padding: 5px;
     opacity: 0.8;
     border-radius: 5px;
+    border: 1px solid #DAE3E6;
     box-shadow: 1px 1px 1px black;
+    -moz-transform-origin: 0px 0px;
+    -webkit-transform-origin: 0px 0px;
 }
 
 #address-control { padding: 5px; }

@@ -84,34 +84,45 @@ function findIntersection(pos) {
 	    ave: Math.round(ave)};
 }
 
-function getOrdinal(n) {
-    var suffix = 'th';
-    var tens = n % 100;
-    if (tens <= 3 || tens >= 21) {
-	var ones = n % 10;
-	if (ones == 1) suffix = 'st';
-	if (ones == 2) suffix = 'nd';
-	if (ones == 3) suffix = 'rd';
+function getOrdinal(n, useSuffix) {
+    if (useSuffix) {
+	var suffix = 'th';
+	var tens = n % 100;
+	if (tens <= 3 || tens >= 21) {
+	    var ones = n % 10;
+	    if (ones == 1) suffix = 'st';
+	    if (ones == 2) suffix = 'nd';
+	    if (ones == 3) suffix = 'rd';
+	}
     }
     n += '';
+
     // comma-delimit thousands:
     var pat = /(\d+)(\d{3})/;
     while (pat.test(n))
 	n = n.replace(pat, '$1,$2');
-    return n + suffix;
+
+    if (useSuffix) n += suffix;
+    return n;
 }
 
-function getIntersectionString(pos, separator) {
-    var street = pos.street, ave = pos.ave;
+function getStreetString(street, useSuffix) {
     if (street >= 0) street += 1;
-    if (ave >= 0) ave += 1;
     var south = street < 0;
     if (south) street = -street;
+    return (south ? 'S ' : '') + getOrdinal(street, useSuffix)
+}
+
+function getAveString(ave, useSuffix) {
+    if (ave >= 0) ave += 1;
     var east = ave < 0;
     if (east) ave = -ave;
-    return (south ? 'S ' : '') + getOrdinal(street) + ' Street'
-	+ (separator || ' and ')
-	+ (east ? 'E ' : '') + getOrdinal(ave) + ' Avenue';
+    return (east ? 'E ' : '') + getOrdinal(ave, useSuffix);
+}
+
+function getIntersectionString(pos) {
+    return getStreetString(pos.street, true) + ' Avenue and '
+	+ getAveString(pos.ave, true) + ' Street';
 }
 
 
@@ -228,13 +239,24 @@ $(function() {
 
     var intersection;
     gmaps.event.addListener(map, 'mousemove', function(e) {
+	var pos = findIntersection(e.latLng);
 	var phi = gspherical.computeHeading(e.latLng, northPole) - 90;
 	if (phi < -90) phi += 180;
+
 	var transform = 'rotate(' + phi + 'deg)';
-	$('#intersection').css({
+	$('#ave').css({
 	    top: e.pixel.y + 5, left: e.pixel.x + 5,
 	    '-moz-transform': transform, '-webkit-transform': transform
-	}).html(getIntersectionString(findIntersection(e.latLng), '<br/>'));
+	}).html(getAveString(pos.ave) + ' <sup>AVE</sup>');
+
+	phi += 90;
+	if (phi > 90) phi -= 180;
+	transform = 'rotate(' + phi + 'deg)';
+	$('#street').css({
+	    top: e.pixel.y + 5, left: e.pixel.x + 5,
+	    '-moz-transform': transform, '-webkit-transform': transform
+	}).html(getStreetString(pos.street) + ' <sup>ST</sup>');
+
 	e.returnValue = false;
     });
 
