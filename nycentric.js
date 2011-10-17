@@ -59,6 +59,12 @@ function getStreetCircle(i, map) {
     });
 }
 
+function findLatLng(pos) {
+    var ave0 = getAveOrigin(pos.ave);
+    var phi = gspherical.computeHeading(ave0, northPole);
+    return gspherical.computeOffset(ave0, getStreetRadius(pos.street) - circumference/4, phi);
+}
+
 function findIntersection(pos) {
     var d = gspherical.computeDistanceBetween(southPole, pos);
     // inverse of getStreetRadius:
@@ -97,8 +103,8 @@ function getOrdinal(n) {
 
 function getIntersectionString(pos, separator) {
     var street = pos.street, ave = pos.ave;
-    if (street == 0) street = 1;
-    if (ave == 0) ave = 1;
+    if (street >= 0) street += 1;
+    if (ave >= 0) ave += 1;
     var south = street < 0;
     if (south) street = -street;
     var east = ave < 0;
@@ -164,9 +170,8 @@ $(function() {
 		var i = road + k*dRoad;
 		if (i in roads) // reuse old road
 		    roads[i].clip = false;
-		else {
+		else
 		    roads[i] = {overlay: getOverlay[type](i, map)};
-		}
 	    }
 
 	    // remove clipped roads:
@@ -199,18 +204,18 @@ $(function() {
 
     var geocoder = new gmaps.Geocoder();
     function geocode() {
-	var address = $('#address').value();
+	var address = $('#address').val();
 	geocoder.geocode({address: address}, function(results, status) {
-		if (status == gmaps.GeocoderStatus.OK) {
-		    map.setCenter(results[0].geometry.location);
-		    showGrid();
-		    if (!locationDiv.hasClass('loading'))
-			// not currently geolocating
-			locationDiv.removeClass().addClass('inactive');
-		}
-		else
-		    console.log('Geocode failed: ' + status);
-	    });
+	    if (status == gmaps.GeocoderStatus.OK) {
+		map.setCenter(results[0].geometry.location);
+		showGrid();
+		if (!locationDiv.hasClass('loading'))
+		    // not currently geolocating
+		    locationDiv.removeClass().addClass('inactive');
+	    }
+	    else
+		console.log('Geocode failed: ' + status);
+	});
     }
 
     gmaps.event.addListener(map, 'zoom_changed', showGrid);
@@ -218,12 +223,18 @@ $(function() {
     gmaps.event.addListener(map, 'click', function(e) {
 	var intersection = getIntersectionString(findIntersection(e.latLng));
 	getInfoWindow(intersection, e.latLng);
+	console.log(e.latLng);
     });
 
     var intersection;
     gmaps.event.addListener(map, 'mousemove', function(e) {
-	$('#intersection').css({top: e.pixel.y+5, left: e.pixel.x+5})
-	    .html(getIntersectionString(findIntersection(e.latLng), '<br/>'));
+	var phi = gspherical.computeHeading(e.latLng, northPole) - 90;
+	if (phi < -90) phi += 180;
+	var transform = 'rotate(' + phi + 'deg)';
+	$('#intersection').css({
+	    top: e.pixel.y + 5, left: e.pixel.x + 5,
+	    '-moz-transform': transform, '-webkit-transform': transform
+	}).html(getIntersectionString(findIntersection(e.latLng), '<br/>'));
 	e.returnValue = false;
     });
 
