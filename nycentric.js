@@ -19,10 +19,6 @@ var lgStreets = Math.ceil(Math.log(nStreets) / Math.LN2);
 var nAves2 = 1 << lgAves;
 var nStreets2 = 1 << lgStreets;
 
-console.log(nAves);
-console.log(nAves2);
-console.log(nStreets);
-console.log(nStreets2);
 
 function getAveOrigin(i) {
     // at equator, nAves should go a distance of `circumference`:
@@ -33,7 +29,8 @@ function getAveLine(i, map) {
     return new gmaps.Polyline({
 	path: [southPole, getAveOrigin(i), northPole],
 	geodesic: true,
-	zIndex: nStreets*2,
+	//zIndex: nStreets*2,
+	clickable: false,
 	strokeColor: '#fffa8a',
 	strokeOpacity: 0.6,
 	strokeWeight: 6,
@@ -52,7 +49,8 @@ function getStreetCircle(i, map) {
     return new gmaps.Circle({
 	center: southPole,
 	radius: getStreetRadius(i),
-	zIndex: nStreets - i,
+	//zIndex: nStreets - i,
+	clickable: false,
 	strokeColor: '#ffffff',
 	strokeOpacity: 0.6,
 	strokeWeight: 4,
@@ -97,7 +95,7 @@ function getOrdinal(n) {
     return n + suffix;
 }
 
-function getIntersectionString(pos) {
+function getIntersectionString(pos, separator) {
     var street = pos.street, ave = pos.ave;
     if (street == 0) street = 1;
     if (ave == 0) ave = 1;
@@ -105,14 +103,15 @@ function getIntersectionString(pos) {
     if (south) street = -street;
     var east = ave < 0;
     if (east) ave = -ave;
-    return (south ? 'S ' : '') + getOrdinal(street) + ' Street and '
+    return (south ? 'S ' : '') + getOrdinal(street) + ' Street'
+	+ (separator || ' and ')
 	+ (east ? 'E ' : '') + getOrdinal(ave) + ' Avenue';
 }
 
 
-function initialize() {
+$(function() {
     var mapTypeId = 'nycentric';
-    var map = new gmaps.Map(document.getElementById('map'), {
+    var map = new gmaps.Map($('#gmap')[0], {
 	disableDefaultUI: true,
 	zoomControl: true,
 	mapTypeId: mapTypeId,
@@ -128,25 +127,25 @@ function initialize() {
 
     var locationDiv, locationSpinner;
     if(navigator.geolocation) {
-	locationDiv = document.getElementById('location');
-	locationSpinner = locationDiv.getElementsByClassName('spinner')[0];
-	locationDiv.style.display = 'block';
-	map.controls[gmaps.ControlPosition.TOP_LEFT].push(document.getElementById('location-control'));
+	locationDiv = $('#location');
+	locationSpinner = $('#location .spinner');
+	locationDiv.show();
+	map.controls[gmaps.ControlPosition.TOP_LEFT].push($('#location-control')[0]);
     }
-    map.controls[gmaps.ControlPosition.TOP_LEFT].push(document.getElementById('address-control'));
+    map.controls[gmaps.ControlPosition.TOP_LEFT].push($('#address-control')[0]);
 
-    function showInfo(content, position) {
-	return new gmaps.InfoWindow({
-	    map: map,
-	    position: position || map.getCenter(),
-	    content: content,
-	});
+    var infoWindow;
+    function getInfoWindow(content, position) {
+	if (!infoWindow)
+	    infoWindow = new gmaps.InfoWindow({});
+	infoWindow.setContent(content);
+	infoWindow.setPosition(position || map.getCenter());
+	infoWindow.open(map);
     }
 
     var grid = {street: {}, ave: {}};
     var getOverlay = {street: getStreetCircle, ave: getAveLine};
     var nRoads2 = {street: nStreets2, ave: nAves2};
-    var selectedRoad = {};
     function showGrid() {
 	var zoom = map.getZoom() + 2;
 	var center = findIntersection(map.getCenter());
@@ -156,8 +155,6 @@ function initialize() {
 	    // use powers of 2 so that half of streets will remain when zooming:
 	    var dRoad = Math.ceil(kRoad * nRoads2[type] / (1 << zoom));
 	    var road = Math.round(center[type] / dRoad) * dRoad;
-	    console.log(dRoad);
-	    console.log(road);
 
 	    // invalidate old roads:
 	    for(var i in roads)
@@ -169,20 +166,6 @@ function initialize() {
 		    roads[i].clip = false;
 		else {
 		    roads[i] = {overlay: getOverlay[type](i, map)};
-		    roads[i].overlay.type = type;
-		    roads[i].overlay.i = i;
-		    gmaps.event.addListener(roads[i].overlay, 'mouseover', function(evt) {
-			var selected = selectedRoad[this.type];
-			if (selected != this) {
-			    if (selected)
-				selected.setOptions({strokeColor: "white"});
-			    selectedRoad[this.type] = this;
-			    this.setOptions({strokeColor: "red"});
-			}
-			console.log(this.type + this.i);
-			console.log(evt.latLng.toString());
-			console.log(getIntersectionString(findIntersection(evt.latLng)));
-		    });
 		}
 	    }
 
@@ -196,68 +179,68 @@ function initialize() {
 	}
     }
 
-    function moved() {
-	showGrid();
-	centerInfo.setPosition(map.getCenter());
-	centerInfo.setContent(getIntersectionString(findIntersection(map.getCenter())));
-    }
-
     function geolocate() {
-	locationDiv.className = 'loading';
-	locationSpinner.style.display = 'block';
+	locationDiv.removeClass().addClass('loading');
+	locationSpinner.show();
 	navigator.geolocation.getCurrentPosition(function(pos) {
 	    pos = new gmaps.LatLng(pos.coords.latitude, pos.coords.longitude);
 	    var intersection = getIntersectionString(findIntersection(pos));
-	    showInfo('You are here.<br/>' + intersection, pos);
+	    getInfoWindow('You are here.<br/>' + intersection, pos);
 	    map.setCenter(pos);
 	    map.setZoom(12);
-	    locationSpinner.style.display = 'none';
-	    locationDiv.className = 'active';
+	    locationSpinner.hide();
+	    locationDiv.removeClass().addClass('active');
 	}, function() {
 	    console.log('Geolocation failed.');
-	    locationSpinner.style.display = 'none';
-	    locationDiv.className = 'inactive';
+	    locationSpinner.hide();
+	    locationDiv.removeClass().addClass('inactive');
 	});
     }
 
     var geocoder = new gmaps.Geocoder();
     function geocode() {
-	var address = document.getElementById("address").value;
+	var address = $('#address').value();
 	geocoder.geocode({address: address}, function(results, status) {
 		if (status == gmaps.GeocoderStatus.OK) {
 		    map.setCenter(results[0].geometry.location);
-		    moved();
+		    showGrid();
+		    if (!locationDiv.hasClass('loading'))
+			// not currently geolocating
+			locationDiv.removeClass().addClass('inactive');
 		}
-		else alert("Geocode was not successful for the following reason: " + status);
+		else
+		    console.log('Geocode failed: ' + status);
 	    });
     }
 
-    showGrid();
-    var centerInfo = showInfo(getIntersectionString(findIntersection(map.getCenter())), map.getCenter());
-
     gmaps.event.addListener(map, 'zoom_changed', showGrid);
-    if (locationDiv) {
-	gmaps.event.addListener(map, 'dragstart', function() {
-	    if (locationSpinner.style.display == 'none')
-		// not currently geolocating
-		locationDiv.className = 'inactive';
-	});
-    }
-    gmaps.event.addListener(map, 'dragend', moved);
-
-    gmaps.event.addListener(map, 'click', function(evt) {
-	console.log(evt.latLng.toString());
-	console.log(getIntersectionString(findIntersection(evt.latLng)));
-	//showInfo(getIntersectionString(findIntersection(evt.latLng)), evt.latLng);
+    gmaps.event.addListener(map, 'dragend', showGrid);
+    gmaps.event.addListener(map, 'click', function(e) {
+	var intersection = getIntersectionString(findIntersection(e.latLng));
+	getInfoWindow(intersection, e.latLng);
     });
 
-    gmaps.event.addDomListener(document.getElementById('location'), 'click', geolocate);
-    gmaps.event.addDomListener(document.getElementById('address-form'), 'submit', function(e) {
-	geocode();
+    var intersection;
+    gmaps.event.addListener(map, 'mousemove', function(e) {
+	$('#intersection').css({top: e.pixel.y+5, left: e.pixel.x+5})
+	    .html(getIntersectionString(findIntersection(e.latLng), '<br/>'));
 	e.returnValue = false;
     });
 
-    geolocate();
-}
+    if (locationDiv) {
+	gmaps.event.addListener(map, 'dragstart', function() {
+	    if (!locationDiv.hasClass('loading'))
+		// not currently geolocating
+		locationDiv.removeClass().addClass('inactive');
+	});
+    }
 
-gmaps.event.addDomListener(window, 'load', initialize);
+    $('#location').click(geolocate);
+    $('#address-form').submit(function(e) {
+	geocode();
+	return false;
+    });
+
+    showGrid();
+    geolocate();
+});

@@ -5,14 +5,18 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
     <meta charset="UTF-8"/>
     <link href="nycentric.css" rel="stylesheet" type="text/css"/>
-    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=geometry&sensor=true"></script>
-    <script type="text/javascript" src="nycentric.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+    <script src="http://maps.googleapis.com/maps/api/js?libraries=geometry&sensor=true"></script>
+    <script src="nycentric.js"></script>
   </head>
   <body>
     <div id="header">
       The Manhattan Grid extended to every point on Earth.
     </div>
-    <div id="map"></div>
+    <div id="map">
+      <div id="gmap"></div>
+      <div id="intersection">Hey!</div>
+    </div>
     <div id="address-control">
       <form id="address-form"><input id="address" type="text" value="New York, NY"/></form>
     </div>
