@@ -127,20 +127,19 @@ function getIntersectionString(pos) {
 
 
 $(function() {
-    var mapTypeId = 'nycentric';
     var map = new gmaps.Map($('#gmap')[0], {
 	disableDefaultUI: true,
 	zoomControl: true,
-	mapTypeId: mapTypeId,
 	zoom: 2,
 	center: manhattan,
+	mapTypeId: google.maps.MapTypeId.ROADMAP,
+	styles: [
+	    {
+		featureType: 'road',
+		stylers: [{visibility: 'off'}]
+	    }
+	],
     });
-    map.mapTypes.set(mapTypeId, new gmaps.StyledMapType([
-	{
-	    featureType: 'road',
-	    stylers: [{visibility: 'off'}]
-	},
-    ]));
 
     var locationDiv, locationSpinner;
     if(navigator.geolocation) {
