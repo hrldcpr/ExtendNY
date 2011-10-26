@@ -275,4 +275,6 @@ $(function() {
 
     showGrid();
     geolocate();
+
+    mpq.track("view");
 });
