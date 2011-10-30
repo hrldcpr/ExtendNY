@@ -29,7 +29,7 @@ body {
 }
 
 #twitter {
-    display: block;
+    display: none; /*block;*/
     position: absolute;
     height: 20px;
     width: 186px;
