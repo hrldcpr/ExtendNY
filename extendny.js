@@ -19,6 +19,8 @@ var lgStreets = Math.ceil(Math.log(nStreets) / Math.LN2);
 var nAves2 = 1 << lgAves;
 var nStreets2 = 1 << lgStreets;
 
+var waterBlue = '#a5bfdd';
+
 
 function getAveOrigin(i) {
     // at equator, nAves should go a distance of `circumference`:
@@ -31,9 +33,10 @@ function getAveLine(i, map) {
 	geodesic: true,
 	//zIndex: nStreets*2,
 	clickable: false,
-	strokeColor: (i == 0) ? '#ff8afa' : '#fffa8a',
-	strokeOpacity: 0.6,
-	strokeWeight: 6,
+	strokeColor: (i == 0) ? '#ff8afa' : waterBlue,
+	zIndex: (i == 0) ? 10 : null,
+	strokeOpacity: 1,
+	strokeWeight: 2,
 	map: map,
     });
 }
@@ -51,9 +54,10 @@ function getStreetCircle(i, map) {
 	radius: getStreetRadius(i),
 	//zIndex: nStreets - i,
 	clickable: false,
-	strokeColor: (i == 0) ? '#ff8afa' : '#ffffff',
-	strokeOpacity: 0.6,
-	strokeWeight: 4,
+	strokeColor: (i == 0) ? '#ff8afa' : waterBlue,
+	zIndex: (i == 0) ? 10 : null,
+	strokeOpacity: 1,
+	strokeWeight: 1,
 	fillOpacity: 0,
 	map: map,
     });
@@ -127,7 +131,7 @@ function getIntersectionString(pos) {
 
 
 $(function() {
-    var map = new gmaps.Map($('#gmap')[0], {
+    map = new gmaps.Map($('#gmap')[0], {
 	disableDefaultUI: true,
 	zoomControl: true,
 	zoom: 2,
