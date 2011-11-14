@@ -9,7 +9,7 @@ var theta = 28.8; // 1st ave heading in degrees
 var nAves = 160000;
 var nStreets = 254000;
 
-var kRoad = 0.2; // affects number of displayed roads
+var kRoad = 0.5; // affects distance between displayed roads
 
 var antipode = new gmaps.LatLng(-manhattan.lat(), manhattan.lng() + 180);
 var northPole = gspherical.computeOffset(manhattan, circumference / 4, theta);
@@ -33,7 +33,6 @@ function getAveLine(i, extra) {
     return new gmaps.Polyline($.extend({
 	path: [southPole, getAveOrigin(i), northPole],
 	geodesic: true,
-	//zIndex: nStreets*2,
 	clickable: false,
 	strokeColor: waterBlue,
 	strokeOpacity: 1,
@@ -52,11 +51,10 @@ function getStreetCircle(i, extra) {
     return new gmaps.Circle($.extend({
 	center: southPole,
 	radius: getStreetRadius(i),
-	//zIndex: nStreets - i,
 	clickable: false,
 	strokeColor: waterBlue,
 	strokeOpacity: 1,
-	strokeWeight: 2,
+	strokeWeight: 1,
 	fillOpacity: 0,
     }, extra));
 }
@@ -74,7 +72,7 @@ function findIntersection(pos) {
 
     // binary search for closest avenue:
     var ave = 0;
-    for(var step = nAves / 2; step >= 0.5; step /= 2) {
+    for(var step = nAves / 2; step >= 1/4; step /= 2) {
 	if (gspherical.computeDistanceBetween(getAveOrigin(ave - 1), pos)
 	    < gspherical.computeDistanceBetween(getAveOrigin(ave + 1), pos))
 	    ave -= step;
@@ -176,7 +174,7 @@ $(function() {
 		else {
 		    var extra = {map: map};
 		    if (i == 0)
-			$.extend(extra, {strokeColor: streetYellow, zIndex: 10});
+			$.extend(extra, {strokeColor: streetYellow, zIndex: 5});
 		    roads[i] = {overlay: getOverlay[type](i, extra)};
 		}
 	    }
@@ -214,7 +212,7 @@ $(function() {
 	var address = $('#address').val();
 	geocoder.geocode({address: address}, function(results, status) {
 	    if (status == gmaps.GeocoderStatus.OK) {
-		map.setCenter(results[0].geometry.location);
+		map.fitBounds(results[0].geometry.viewport);
 		showGrid();
 		if (!locationDiv.hasClass('loading'))
 		    // not currently geolocating
@@ -251,11 +249,11 @@ $(function() {
 		mouseRoads.aveOverlay.setMap(null);
 		mouseRoads.streetOverlay.setMap(null);
 	    }
-	    var extra = {map: map, strokeColor: signGreen, zIndex: 5};
+	    var extra = {map: map, strokeColor: signGreen, zIndex: 10};
 	    mouseRoads = {ave: pos.ave, street: pos.street,
 			  aveOverlay: getAveLine(pos.ave, extra),
 			  streetOverlay: getStreetCircle(pos.street, extra)};
-	}, 500);
+	}, 200);
 
 	mouseAveName.text(getAveString(pos.ave));
 	mouseStreetName.text(getStreetString(pos.street));
