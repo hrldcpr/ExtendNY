@@ -8,6 +8,15 @@ body {
     font-family: Helvetica, sans-serif;
 }
 
+a {
+    text-decoration: inherit;
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
 #header {
     position: absolute;
     top: 0px;
@@ -18,23 +27,30 @@ body {
     border-bottom: 1px solid #444;
     z-index: 10;
     background: #888;
-    color: white;
     box-shadow: 0px 2px 0px rgba(0,0,0,0.4);
+    color: white;
+}
+
+#description {
     font-weight: bold;
     text-shadow: 0px 1px 0px black;
+}
+
+#by {
+    font-size: 12px;
 }
 
 .share {
     float: right;
 }
 
-#twitter {
-    display: none; /*block;*/
-    position: absolute;
-    height: 20px;
-    width: 186px;
-    background-image: url('tweet.png');
-}
+/* #twitter { */
+/*     display: none; /\*block;*\/ */
+/*     position: absolute; */
+/*     height: 20px; */
+/*     width: 186px; */
+/*     background-image: url('tweet.png'); */
+/* } */
 
 #map {
     position: absolute;
