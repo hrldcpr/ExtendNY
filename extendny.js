@@ -206,7 +206,7 @@ $(function() {
     }
     map.controls[gmaps.ControlPosition.TOP_LEFT].push($('#address-control')[0]);
 
-    new SignOverlay($('#origin'), findLatLng({ave: 0, street: 0}), map);
+    // new SignOverlay($('#origin'), findLatLng({ave: 0, street: 0}), map);
     var userSign;
     function moveUserSign(latLng) {
 	if (!userSign)
@@ -290,9 +290,9 @@ $(function() {
     gmaps.event.addListener(map, 'zoom_changed', showGrid);
     gmaps.event.addListener(map, 'dragend', showGrid);
 
-    // gmaps.event.addListener(map, 'click', function (e) {
-    // 	userSign.setLatLng(e.latLng);
-    // });
+    gmaps.event.addListener(map, 'click', function (e) {
+    	userSign.setLatLng(e.latLng);
+    });
 
     var mouseAve = $('#mouse .ave');
     var mouseAveName = mouseAve.find('.name');
