@@ -132,7 +132,7 @@ var SignOverlay = function(div, latLng, map) {
     this.street_ = div.find('.street');
     this.latLng_ = latLng;
     this.color_ = this.ave_.css('border-top-color');
-    this.roads_ = null;
+    // this.roads_ = null;
     this.setMap(map);
     this.marker_ = null
 };
@@ -150,10 +150,10 @@ SignOverlay.prototype.setLatLng = function(latLng) {
 	});
     this.marker_.setPosition(latLng);
 
-    if (this.roads_) {
-	this.roads_.ave.setMap(null);
-	this.roads_.street.setMap(null);
-    }
+    // if (this.roads_) {
+    // 	this.roads_.ave.setMap(null);
+    // 	this.roads_.street.setMap(null);
+    // }
     // var extra = {map: map, strokeColor: this.color_, zIndex: 9};
     // this.roads_ = {ave: getAveLine(pos.ave, extra),
     // 		   street: getStreetCircle(pos.street, extra)};
@@ -162,6 +162,7 @@ SignOverlay.prototype.onAdd = function() {
     this.div_.appendTo(this.getPanes().floatPane);
 };
 SignOverlay.prototype.draw = function() {
+    if (!this.getProjection()) return;
     var pixel = this.getProjection().fromLatLngToDivPixel(this.latLng_);
 
     var phi = gspherical.computeHeading(this.latLng_, northPole) - 90;
