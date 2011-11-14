@@ -25,17 +25,22 @@ _gaq.push(['_trackPageview']);
     </script>
   </head>
   <body>
+
     <div id="header">
       The Manhattan Grid extended to every point on Earth.
       <div class="share">
 	<a id="twitter" href="https://twitter.com/share"></a>
       </div>
     </div>
+
     <div id="map">
       <div id="gmap"></div>
-      <div id="ave" class="sign">Hey!</div>
-      <div id="street" class="sign">Hey!</div>
+      <div id="mouse-intersection">
+	<div class="ave sign"><span class="name"></span> <sup>AVE</sup></div>
+	<div class="street sign"><span class="name"></span> <sup>ST</sup></div>
+      </div>
     </div>
+
     <div id="address-control">
       <form id="address-form"><input id="address" type="text" value="New York, NY"/></form>
     </div>
@@ -44,5 +49,14 @@ _gaq.push(['_trackPageview']);
 	<div class="spinner"></div>
       </div>
     </div>
+    <div id="origin-intersection">
+      <div class="ave sign"><span class="name"></span> <sup>AVE</sup></div>
+      <div class="street sign"><span class="name"></span> <sup>ST</sup></div>
+    </div>
+    <div id="user-intersection">
+      <div class="ave sign"><span class="name"></span> <sup>AVE</sup></div>
+      <div class="street sign"><span class="name"></span> <sup>ST</sup></div>
+    </div>
+
   </body>
 </html>

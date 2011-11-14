@@ -9,7 +9,7 @@ var theta = 28.8; // 1st ave heading in degrees
 var nAves = 160000;
 var nStreets = 254000;
 
-var kRoad = 0.5; // affects number of displayed roads
+var kRoad = 0.2; // affects number of displayed roads
 
 var antipode = new gmaps.LatLng(-manhattan.lat(), manhattan.lng() + 180);
 var northPole = gspherical.computeOffset(manhattan, circumference / 4, theta);
@@ -20,6 +20,8 @@ var nAves2 = 1 << lgAves;
 var nStreets2 = 1 << lgStreets;
 
 var waterBlue = '#a5bfdd';
+var streetYellow = '#fffa8a';
+var signGreen = '#2c7669';
 
 
 function getAveOrigin(i) {
@@ -27,18 +29,16 @@ function getAveOrigin(i) {
     return gspherical.computeOffset(manhattan, i * circumference / nAves, theta - 90);
 }
 
-function getAveLine(i, map) {
-    return new gmaps.Polyline({
+function getAveLine(i, extra) {
+    return new gmaps.Polyline($.extend({
 	path: [southPole, getAveOrigin(i), northPole],
 	geodesic: true,
 	//zIndex: nStreets*2,
 	clickable: false,
-	strokeColor: (i == 0) ? '#ff8afa' : waterBlue,
-	zIndex: (i == 0) ? 10 : null,
+	strokeColor: waterBlue,
 	strokeOpacity: 1,
 	strokeWeight: 2,
-	map: map,
-    });
+    }, extra));
 }
 
 function getStreetRadius(i) {
@@ -48,19 +48,17 @@ function getStreetRadius(i) {
     return i*circumference/2/nStreets + circumference/4;
 }
 
-function getStreetCircle(i, map) {
-    return new gmaps.Circle({
+function getStreetCircle(i, extra) {
+    return new gmaps.Circle($.extend({
 	center: southPole,
 	radius: getStreetRadius(i),
 	//zIndex: nStreets - i,
 	clickable: false,
-	strokeColor: (i == 0) ? '#ff8afa' : waterBlue,
-	zIndex: (i == 0) ? 10 : null,
+	strokeColor: waterBlue,
 	strokeOpacity: 1,
-	strokeWeight: 1,
+	strokeWeight: 2,
 	fillOpacity: 0,
-	map: map,
-    });
+    }, extra));
 }
 
 function findLatLng(pos) {
@@ -154,15 +152,6 @@ $(function() {
     }
     map.controls[gmaps.ControlPosition.TOP_LEFT].push($('#address-control')[0]);
 
-    var infoWindow;
-    function getInfoWindow(content, position) {
-	if (!infoWindow)
-	    infoWindow = new gmaps.InfoWindow({});
-	infoWindow.setContent(content);
-	infoWindow.setPosition(position || map.getCenter());
-	infoWindow.open(map);
-    }
-
     var grid = {street: {}, ave: {}};
     var getOverlay = {street: getStreetCircle, ave: getAveLine};
     var nRoads2 = {street: nStreets2, ave: nAves2};
@@ -184,8 +173,12 @@ $(function() {
 		var i = road + k*dRoad;
 		if (i in roads) // reuse old road
 		    roads[i].clip = false;
-		else
-		    roads[i] = {overlay: getOverlay[type](i, map)};
+		else {
+		    var extra = {map: map};
+		    if (i == 0)
+			$.extend(extra, {strokeColor: streetYellow, zIndex: 10});
+		    roads[i] = {overlay: getOverlay[type](i, extra)};
+		}
 	    }
 
 	    // remove clipped roads:
@@ -204,7 +197,7 @@ $(function() {
 	navigator.geolocation.getCurrentPosition(function(pos) {
 	    pos = new gmaps.LatLng(pos.coords.latitude, pos.coords.longitude);
 	    var intersection = getIntersectionString(findIntersection(pos));
-	    getInfoWindow('You are here.<br/>' + intersection, pos);
+	    // getInfoWindow('You are here.<br/>' + intersection, pos);
 	    map.setCenter(pos);
 	    map.setZoom(12);
 	    locationSpinner.hide();
@@ -236,29 +229,53 @@ $(function() {
     gmaps.event.addListener(map, 'dragend', showGrid);
     gmaps.event.addListener(map, 'click', function(e) {
 	var intersection = getIntersectionString(findIntersection(e.latLng));
-	getInfoWindow(intersection, e.latLng);
+	// getInfoWindow(intersection, e.latLng);
 	console.log(e.latLng);
     });
 
-    var intersection;
+    var mouseAve = $('#mouse-intersection .ave');
+    var mouseAveName = mouseAve.find('.name');
+    var mouseStreet = $('#mouse-intersection .street');
+    var mouseStreetName = mouseStreet.find('.name');
+    var mouseRoads, mouseRoadsTimer;
     gmaps.event.addListener(map, 'mousemove', function(e) {
 	var pos = findIntersection(e.latLng);
+
+	if (mouseRoadsTimer)
+	    clearTimeout(mouseRoadsTimer);
+	mouseRoadsTimer = setTimeout(function() {
+	    mouseRoadsTimer = null;
+	    if (mouseRoads) {
+		if (mouseRoads.ave == pos.ave && mouseRoads.street == pos.street)
+		    return;
+		mouseRoads.aveOverlay.setMap(null);
+		mouseRoads.streetOverlay.setMap(null);
+	    }
+	    var extra = {map: map, strokeColor: signGreen, zIndex: 5};
+	    mouseRoads = {ave: pos.ave, street: pos.street,
+			  aveOverlay: getAveLine(pos.ave, extra),
+			  streetOverlay: getStreetCircle(pos.street, extra)};
+	}, 500);
+
+	mouseAveName.text(getAveString(pos.ave));
+	mouseStreetName.text(getStreetString(pos.street));
+
 	var phi = gspherical.computeHeading(e.latLng, northPole) - 90;
 	if (phi < -90) phi += 180;
 
 	var transform = 'rotate(' + phi + 'deg)';
-	$('#ave').css({
+	mouseAve.css({
 	    top: e.pixel.y + 5, left: e.pixel.x + 5,
 	    '-moz-transform': transform, '-webkit-transform': transform
-	}).html(getAveString(pos.ave) + ' <sup>AVE</sup>');
+	});
 
 	phi += 90;
 	if (phi > 90) phi -= 180;
 	transform = 'rotate(' + phi + 'deg)';
-	$('#street').css({
+	mouseStreet.css({
 	    top: e.pixel.y + 5, left: e.pixel.x + 5,
 	    '-moz-transform': transform, '-webkit-transform': transform
-	}).html(getStreetString(pos.street) + ' <sup>ST</sup>');
+	});
 
 	e.returnValue = false;
     });
