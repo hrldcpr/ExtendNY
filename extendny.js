@@ -292,7 +292,7 @@ $(function() {
     gmaps.event.addListener(map, 'dragend', showGrid);
 
     gmaps.event.addListener(map, 'click', function (e) {
-    	userSign.setLatLng(e.latLng);
+    	moveUserSign(e.latLng);
     });
 
     var mouseAve = $('#mouse .ave');
