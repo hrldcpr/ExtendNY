@@ -63,6 +63,21 @@ body {
     -webkit-transform-origin: 0px 0px;
 }
 
+/* hack to make street signs not wrap */
+.intersection {
+    width: 1000px;
+    height: 1000px;
+}
+#origin .sign {
+    border: 2px solid #fffa8a;
+}
+#user {
+    display: none;
+}
+#user .sign {
+    border: 2px solid #FF7E73; /*#3B99FF;*/
+}
+
 #address-control { padding: 5px; }
 
 #location-control { padding: 5px; }

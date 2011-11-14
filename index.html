@@ -35,7 +35,15 @@ _gaq.push(['_trackPageview']);
 
     <div id="map">
       <div id="gmap"></div>
-      <div id="mouse-intersection">
+      <div id="origin" class="intersection">
+	<div class="ave sign">1 <sup>AVE</sup></div>
+	<div class="street sign">1 <sup>ST</sup></div>
+      </div>
+      <div id="user" class="intersection">
+	<div class="ave sign"><span class="name"></span> <sup>AVE</sup></div>
+	<div class="street sign"><span class="name"></span> <sup>ST</sup></div>
+      </div>
+      <div id="mouse" class="intersection">
 	<div class="ave sign"><span class="name"></span> <sup>AVE</sup></div>
 	<div class="street sign"><span class="name"></span> <sup>ST</sup></div>
       </div>
@@ -48,14 +56,6 @@ _gaq.push(['_trackPageview']);
       <div id="location" class="inactive" title="Geolocate">
 	<div class="spinner"></div>
       </div>
-    </div>
-    <div id="origin-intersection">
-      <div class="ave sign"><span class="name"></span> <sup>AVE</sup></div>
-      <div class="street sign"><span class="name"></span> <sup>ST</sup></div>
-    </div>
-    <div id="user-intersection">
-      <div class="ave sign"><span class="name"></span> <sup>AVE</sup></div>
-      <div class="street sign"><span class="name"></span> <sup>ST</sup></div>
     </div>
 
   </body>

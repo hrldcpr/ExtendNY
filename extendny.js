@@ -126,13 +126,69 @@ function getIntersectionString(pos) {
 }
 
 
+var SignOverlay = function(div, latLng, map) {
+    this.div_ = div;
+    this.ave_ = div.find('.ave');
+    this.street_ = div.find('.street');
+    this.latLng_ = latLng;
+    this.color_ = this.ave_.css('border-top-color');
+    this.roads_ = null;
+    this.setMap(map);
+    this.marker_ = null
+};
+SignOverlay.prototype = new gmaps.OverlayView();
+SignOverlay.prototype.setLatLng = function(latLng) {
+    var pos = findIntersection(latLng);
+    this.ave_.find('.name').text(getAveString(pos.ave));
+    this.street_.find('.name').text(getStreetString(pos.street));
+    this.latLng_ = latLng;
+    this.draw();
+
+    if (!this.marker_)
+	this.marker_ = new gmaps.Marker({
+	    map: this.getMap(),
+	});
+    this.marker_.setPosition(latLng);
+
+    if (this.roads_) {
+	this.roads_.ave.setMap(null);
+	this.roads_.street.setMap(null);
+    }
+    // var extra = {map: map, strokeColor: this.color_, zIndex: 9};
+    // this.roads_ = {ave: getAveLine(pos.ave, extra),
+    // 		   street: getStreetCircle(pos.street, extra)};
+};
+SignOverlay.prototype.onAdd = function() {
+    this.div_.appendTo(this.getPanes().floatPane);
+};
+SignOverlay.prototype.draw = function() {
+    var pixel = this.getProjection().fromLatLngToDivPixel(this.latLng_);
+
+    var phi = gspherical.computeHeading(this.latLng_, northPole) - 90;
+    if (phi < -90) phi += 180;
+
+    var transform = 'rotate(' + phi + 'deg)';
+    this.ave_.css({
+	top: pixel.y + 5, left: pixel.x + 5,
+	'-moz-transform': transform, '-webkit-transform': transform
+    });
+
+    phi += 90;
+    if (phi > 90) phi -= 180;
+    transform = 'rotate(' + phi + 'deg)';
+    this.street_.css({
+	top: pixel.y + 5, left: pixel.x + 5,
+	'-moz-transform': transform, '-webkit-transform': transform
+    });
+};
+
 $(function() {
     map = new gmaps.Map($('#gmap')[0], {
 	disableDefaultUI: true,
 	zoomControl: true,
 	zoom: 2,
 	center: manhattan,
-	mapTypeId: google.maps.MapTypeId.ROADMAP,
+	mapTypeId: gmaps.MapTypeId.ROADMAP,
 	styles: [
 	    {
 		featureType: 'road',
@@ -149,6 +205,14 @@ $(function() {
 	map.controls[gmaps.ControlPosition.TOP_LEFT].push($('#location-control')[0]);
     }
     map.controls[gmaps.ControlPosition.TOP_LEFT].push($('#address-control')[0]);
+
+    new SignOverlay($('#origin'), findLatLng({ave: 0, street: 0}), map);
+    var userSign;
+    function moveUserSign(latLng) {
+	if (!userSign)
+	    userSign = new SignOverlay($('#user').show(), latLng, map);
+	userSign.setLatLng(latLng);
+    }
 
     var grid = {street: {}, ave: {}};
     var getOverlay = {street: getStreetCircle, ave: getAveLine};
@@ -192,11 +256,10 @@ $(function() {
     function geolocate() {
 	locationDiv.removeClass().addClass('loading');
 	locationSpinner.show();
-	navigator.geolocation.getCurrentPosition(function(pos) {
-	    pos = new gmaps.LatLng(pos.coords.latitude, pos.coords.longitude);
-	    var intersection = getIntersectionString(findIntersection(pos));
-	    // getInfoWindow('You are here.<br/>' + intersection, pos);
-	    map.setCenter(pos);
+	navigator.geolocation.getCurrentPosition(function(position) {
+	    latLng = new gmaps.LatLng(position.coords.latitude, position.coords.longitude);
+	    map.setCenter(latLng);
+	    moveUserSign(latLng);
 	    map.setZoom(12);
 	    locationSpinner.hide();
 	    locationDiv.removeClass().addClass('active');
@@ -213,6 +276,7 @@ $(function() {
 	geocoder.geocode({address: address}, function(results, status) {
 	    if (status == gmaps.GeocoderStatus.OK) {
 		map.fitBounds(results[0].geometry.viewport);
+		moveUserSign(results[0].geometry.location);
 		showGrid();
 		if (!locationDiv.hasClass('loading'))
 		    // not currently geolocating
@@ -225,57 +289,56 @@ $(function() {
 
     gmaps.event.addListener(map, 'zoom_changed', showGrid);
     gmaps.event.addListener(map, 'dragend', showGrid);
-    gmaps.event.addListener(map, 'click', function(e) {
-	var intersection = getIntersectionString(findIntersection(e.latLng));
-	// getInfoWindow(intersection, e.latLng);
-	console.log(e.latLng);
-    });
 
-    var mouseAve = $('#mouse-intersection .ave');
+    // gmaps.event.addListener(map, 'click', function (e) {
+    // 	userSign.setLatLng(e.latLng);
+    // });
+
+    var mouseAve = $('#mouse .ave');
     var mouseAveName = mouseAve.find('.name');
-    var mouseStreet = $('#mouse-intersection .street');
+    var mouseStreet = $('#mouse .street');
     var mouseStreetName = mouseStreet.find('.name');
     var mouseRoads, mouseRoadsTimer;
     gmaps.event.addListener(map, 'mousemove', function(e) {
-	var pos = findIntersection(e.latLng);
+    	var pos = findIntersection(e.latLng);
 
-	if (mouseRoadsTimer)
-	    clearTimeout(mouseRoadsTimer);
-	mouseRoadsTimer = setTimeout(function() {
-	    mouseRoadsTimer = null;
-	    if (mouseRoads) {
-		if (mouseRoads.ave == pos.ave && mouseRoads.street == pos.street)
-		    return;
-		mouseRoads.aveOverlay.setMap(null);
-		mouseRoads.streetOverlay.setMap(null);
-	    }
-	    var extra = {map: map, strokeColor: signGreen, zIndex: 10};
-	    mouseRoads = {ave: pos.ave, street: pos.street,
-			  aveOverlay: getAveLine(pos.ave, extra),
-			  streetOverlay: getStreetCircle(pos.street, extra)};
-	}, 200);
+    	if (mouseRoadsTimer)
+    	    clearTimeout(mouseRoadsTimer);
+    	mouseRoadsTimer = setTimeout(function() {
+    	    mouseRoadsTimer = null;
+    	    if (mouseRoads) {
+    		if (mouseRoads.ave == pos.ave && mouseRoads.street == pos.street)
+    		    return;
+    		mouseRoads.aveOverlay.setMap(null);
+    		mouseRoads.streetOverlay.setMap(null);
+    	    }
+    	    var extra = {map: map, strokeColor: signGreen, zIndex: 10};
+    	    mouseRoads = {ave: pos.ave, street: pos.street,
+    			  aveOverlay: getAveLine(pos.ave, extra),
+    			  streetOverlay: getStreetCircle(pos.street, extra)};
+    	}, 200);
 
-	mouseAveName.text(getAveString(pos.ave));
-	mouseStreetName.text(getStreetString(pos.street));
+    	mouseAveName.text(getAveString(pos.ave));
+    	mouseStreetName.text(getStreetString(pos.street));
 
-	var phi = gspherical.computeHeading(e.latLng, northPole) - 90;
-	if (phi < -90) phi += 180;
+    	var phi = gspherical.computeHeading(e.latLng, northPole) - 90;
+    	if (phi < -90) phi += 180;
 
-	var transform = 'rotate(' + phi + 'deg)';
-	mouseAve.css({
-	    top: e.pixel.y + 5, left: e.pixel.x + 5,
-	    '-moz-transform': transform, '-webkit-transform': transform
-	});
+    	var transform = 'rotate(' + phi + 'deg)';
+    	mouseAve.css({
+    	    top: e.pixel.y + 5, left: e.pixel.x + 5,
+    	    '-moz-transform': transform, '-webkit-transform': transform
+    	});
 
-	phi += 90;
-	if (phi > 90) phi -= 180;
-	transform = 'rotate(' + phi + 'deg)';
-	mouseStreet.css({
-	    top: e.pixel.y + 5, left: e.pixel.x + 5,
-	    '-moz-transform': transform, '-webkit-transform': transform
-	});
+    	phi += 90;
+    	if (phi > 90) phi -= 180;
+    	transform = 'rotate(' + phi + 'deg)';
+    	mouseStreet.css({
+    	    top: e.pixel.y + 5, left: e.pixel.x + 5,
+    	    '-moz-transform': transform, '-webkit-transform': transform
+    	});
 
-	e.returnValue = false;
+    	e.returnValue = false;
     });
 
     if (locationDiv) {
