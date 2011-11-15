@@ -139,7 +139,7 @@ function updateHash(pos, zoom) {
 function parseHash() {
     if (location.hash == oldHash) return;
     oldHash = location.hash;
-    var groups = /#(S?)\W*(\d+)\W*St(E?)\W*(\d+)\W*Ave\W+(\d+)/i.exec(location.hash);
+    var groups = /#(S?)\W*(\d+)\W*St\W*(E?)\W*(\d+)\W*Ave\W+(\d+)/i.exec(location.hash);
     if (groups) {
 	var zoom = parseInt(groups[5]);
 	var street = parseInt(groups[2]);
