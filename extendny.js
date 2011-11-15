@@ -300,8 +300,8 @@ $(function() {
 	navigator.geolocation.getCurrentPosition(function(position) {
 	    latLng = new gmaps.LatLng(position.coords.latitude, position.coords.longitude);
 	    map.setCenter(latLng);
-	    moveUserSign(latLng);
 	    map.setZoom(12);
+	    moveUserSign(latLng);
 	    locationSpinner.hide();
 	    locationDiv.removeClass().addClass('active');
 	}, function() {
@@ -393,11 +393,11 @@ $(function() {
     });
     $(window).bind('hashchange', hashChange);
 
+    mpq.track("view", {hash: !!location.hash});
+
     if (location.hash)
 	hashChange();
     else
 	geolocate();
     showGrid();
-
-    mpq.track("view");
 });
