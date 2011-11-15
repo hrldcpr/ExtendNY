@@ -9,7 +9,7 @@ var theta = 28.8; // 1st ave heading in degrees
 var nAves = 160000;
 var nStreets = 254000;
 
-var kRoad = 0.5; // affects distance between displayed roads
+var kRoad = 1/8; // affects distance between displayed roads
 
 var antipode = new gmaps.LatLng(-manhattan.lat(), manhattan.lng() + 180);
 var northPole = gspherical.computeOffset(manhattan, circumference / 4, theta);
@@ -121,8 +121,36 @@ function getAveString(ave, useSuffix) {
 }
 
 function getIntersectionString(pos) {
-    return getStreetString(pos.street, true) + ' Avenue and '
-	+ getAveString(pos.ave, true) + ' Street';
+    return getStreetString(pos.street, true) + ' Street and '
+	+ getAveString(pos.ave, true) + ' Avenue';
+}
+
+var oldHash;
+function updateHash(pos, zoom) {
+    var street = pos.street, south = "";
+    if (street < 0) { street = -street; south = "S"; }
+    else street += 1;
+    var ave = pos.ave, east = "";
+    if (ave < 0) { ave = -ave; east = "E"; }
+    else ave += 1;
+    location.hash = oldHash = "#" + south + street + ".St." + east + ave + ".Ave/" + zoom;
+}
+
+function parseHash() {
+    if (location.hash == oldHash) return;
+    oldHash = location.hash;
+    var groups = /#(S?)\W*(\d+)\W*St(E?)\W*(\d+)\W*Ave\W+(\d+)/i.exec(location.hash);
+    if (groups) {
+	var zoom = parseInt(groups[5]);
+	var street = parseInt(groups[2]);
+	var ave = parseInt(groups[4]);
+	if (groups[1]) street = -street;
+	else street -= 1;
+	if (groups[3]) ave = -ave;
+	else ave -= 1;
+
+	return {ave: ave, street: street, zoom: zoom};
+    }
 }
 
 
@@ -209,17 +237,29 @@ $(function() {
 
     // new SignOverlay($('#origin'), findLatLng({ave: 0, street: 0}), map);
     var userSign;
-    function moveUserSign(latLng) {
+    function moveUserSign(latLng, noHash) {
 	if (!userSign)
 	    userSign = new SignOverlay($('#user').show(), latLng, map);
 	userSign.setLatLng(latLng);
+	if (!noHash)
+	    updateHash(findIntersection(latLng), map.getZoom());
+    }
+
+    function hashChange() {
+	var hash = parseHash();
+	if (hash) {
+	    var latLng = findLatLng(hash);
+	    map.setCenter(latLng);
+	    map.setZoom(hash.zoom);
+	    moveUserSign(latLng, true);
+	}
     }
 
     var grid = {street: {}, ave: {}};
     var getOverlay = {street: getStreetCircle, ave: getAveLine};
     var nRoads2 = {street: nStreets2, ave: nAves2};
     function showGrid() {
-	var zoom = map.getZoom() + 2;
+	var zoom = map.getZoom();
 	var center = findIntersection(map.getCenter());
 
 	for(var type in grid) {
@@ -291,10 +331,6 @@ $(function() {
     gmaps.event.addListener(map, 'zoom_changed', showGrid);
     gmaps.event.addListener(map, 'dragend', showGrid);
 
-    gmaps.event.addListener(map, 'click', function (e) {
-    	moveUserSign(e.latLng);
-    });
-
     var mouseAve = $('#mouse .ave');
     var mouseAveName = mouseAve.find('.name');
     var mouseStreet = $('#mouse .street');
@@ -317,7 +353,7 @@ $(function() {
     	    mouseRoads = {ave: pos.ave, street: pos.street,
     			  aveOverlay: getAveLine(pos.ave, extra),
     			  streetOverlay: getStreetCircle(pos.street, extra)};
-    	}, 200);
+    	}, 100);
 
     	mouseAveName.text(getAveString(pos.ave));
     	mouseStreetName.text(getStreetString(pos.street));
@@ -355,9 +391,13 @@ $(function() {
 	geocode();
 	return false;
     });
+    $(window).bind('hashchange', hashChange);
 
+    if (location.hash)
+	hashChange();
+    else
+	geolocate();
     showGrid();
-    geolocate();
 
     mpq.track("view");
 });
