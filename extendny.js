@@ -80,8 +80,8 @@ function findIntersection(pos) {
 	    ave += step;
     }
 
-    return {street: Math.round(street),
-	    ave: Math.round(ave)};
+    return {street: Math.round(street) % nStreets,
+	    ave: Math.round(ave) % nAves};
 }
 
 function getOrdinal(n, useSuffix) {
