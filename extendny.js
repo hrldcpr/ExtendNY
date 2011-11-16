@@ -110,14 +110,14 @@ function getStreetString(street, useSuffix) {
     if (street >= 0) street += 1;
     var south = street < 0;
     if (south) street = -street;
-    return (south ? 'S ' : '') + getOrdinal(street, useSuffix)
+    return (south ? 'S&nbsp;' : '') + getOrdinal(street, useSuffix)
 }
 
 function getAveString(ave, useSuffix) {
     if (ave >= 0) ave += 1;
     var east = ave < 0;
     if (east) ave = -ave;
-    return (east ? 'E ' : '') + getOrdinal(ave, useSuffix);
+    return (east ? 'E&nbsp;' : '') + getOrdinal(ave, useSuffix);
 }
 
 function getIntersectionString(pos) {
@@ -167,8 +167,8 @@ var SignOverlay = function(div, latLng, map) {
 SignOverlay.prototype = new gmaps.OverlayView();
 SignOverlay.prototype.setLatLng = function(latLng) {
     var pos = findIntersection(latLng);
-    this.ave_.find('.name').text(getAveString(pos.ave));
-    this.street_.find('.name').text(getStreetString(pos.street));
+    this.ave_.find('.name').html(getAveString(pos.ave));
+    this.street_.find('.name').html(getStreetString(pos.street));
     this.latLng_ = latLng;
     this.draw();
 
@@ -355,8 +355,8 @@ $(function() {
     			  streetOverlay: getStreetCircle(pos.street, extra)};
     	}, 100);
 
-    	mouseAveName.text(getAveString(pos.ave));
-    	mouseStreetName.text(getStreetString(pos.street));
+    	mouseAveName.html(getAveString(pos.ave));
+    	mouseStreetName.html(getStreetString(pos.street));
 
     	var phi = gspherical.computeHeading(e.latLng, northPole) - 90;
     	if (phi < -90) phi += 180;
