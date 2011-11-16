@@ -384,6 +384,7 @@ $(function() {
 
     $('#location').click(geolocate);
     $('#address-form').submit(function(e) {
+	$('#address').blur();
 	geocode();
 	return false;
     });
