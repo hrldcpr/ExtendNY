@@ -38,19 +38,22 @@ a:hover {
 
 #by {
     font-size: 12px;
+    padding-top: 4px;
+}
+#like {
+    width: 90px;
+}
+#tweet {
 }
 
-.share {
+.left {
+    float: left;
+    margin-right: 10px;
+}
+.right {
     float: right;
+    margin-left: 10px;
 }
-
-/* #twitter { */
-/*     display: none; /\*block;*\/ */
-/*     position: absolute; */
-/*     height: 20px; */
-/*     width: 186px; */
-/*     background-image: url('tweet.png'); */
-/* } */
 
 #map {
     position: absolute;
