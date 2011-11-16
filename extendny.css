@@ -109,7 +109,7 @@ a:hover {
 }
 
 
-@media screen and (max-width: 760px) {
+@media screen and (max-width: 830px) {
     #description {
 	display: none;
     }
