@@ -112,12 +112,14 @@ a:hover {
 }
 
 
-/* hide header on phones */
-@media screen and (max-width: 480px) {
-    #header {
+@media screen and (max-width: 760px) {
+    #description {
 	display: none;
     }
-    #map {
-	top: 0px;
+}
+
+@media screen and (max-width: 480px) {
+    #header {
+	padding: 5px;
     }
 }
