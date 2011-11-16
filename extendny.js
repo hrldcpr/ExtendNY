@@ -160,7 +160,6 @@ var SignOverlay = function(div, latLng, map) {
     this.street_ = div.find('.street');
     this.latLng_ = latLng;
     this.color_ = this.ave_.css('border-top-color');
-    // this.roads_ = null;
     this.setMap(map);
     this.marker_ = null
 };
@@ -177,14 +176,6 @@ SignOverlay.prototype.setLatLng = function(latLng) {
 	    map: this.getMap(),
 	});
     this.marker_.setPosition(latLng);
-
-    // if (this.roads_) {
-    // 	this.roads_.ave.setMap(null);
-    // 	this.roads_.street.setMap(null);
-    // }
-    // var extra = {map: map, strokeColor: this.color_, zIndex: 9};
-    // this.roads_ = {ave: getAveLine(pos.ave, extra),
-    // 		   street: getStreetCircle(pos.street, extra)};
 };
 SignOverlay.prototype.onAdd = function() {
     this.div_.appendTo(this.getPanes().floatPane);
@@ -235,7 +226,6 @@ $(function() {
     }
     map.controls[gmaps.ControlPosition.TOP_LEFT].push($('#address-control')[0]);
 
-    // new SignOverlay($('#origin'), findLatLng({ave: 0, street: 0}), map);
     var userSign;
     function moveUserSign(latLng, noHash) {
 	if (!userSign)
@@ -331,12 +321,18 @@ $(function() {
     gmaps.event.addListener(map, 'zoom_changed', showGrid);
     gmaps.event.addListener(map, 'dragend', showGrid);
 
-    var mouseAve = $('#mouse .ave');
-    var mouseAveName = mouseAve.find('.name');
-    var mouseStreet = $('#mouse .street');
-    var mouseStreetName = mouseStreet.find('.name');
-    var mouseRoads, mouseRoadsTimer;
+    var mouse, mouseAve, mouseAveName, mouseStreet, mouseStreetName, mouseRoads, mouseRoadsTimer;
+    function setupMouse() {
+	if (!mouse) {
+	    mouse = $('#mouse').show();
+	    mouseAve = mouse.find('.ave');
+	    mouseAveName = mouseAve.find('.name');
+	    mouseStreet = mouse.find('.street');
+	    mouseStreetName = mouseStreet.find('.name');
+	}
+    }
     gmaps.event.addListener(map, 'mousemove', function(e) {
+	setupMouse();
     	var pos = findIntersection(e.latLng);
 
     	if (mouseRoadsTimer)

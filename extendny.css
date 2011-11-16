@@ -77,10 +77,7 @@ a:hover {
     -webkit-transform-origin: 0px 0px;
 }
 
-#origin .sign {
-    border: 2px solid #fffa8a;
-}
-#user {
+#user,#mouse {
     display: none;
 }
 #user .sign {
