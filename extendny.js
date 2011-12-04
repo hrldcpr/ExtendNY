@@ -202,6 +202,16 @@ SignOverlay.prototype.draw = function() {
     });
 };
 
+
+var fromHash = !!location.hash;
+var abTest = Math.random() < 0.5 ? 'a' : 'b';
+function global(props) {
+    if (!props) props = {};
+    props.ab = abTest;
+    props.hash = fromHash;
+    return props;
+}
+
 $(function() {
     map = new gmaps.Map($('#gmap')[0], {
 	disableDefaultUI: true,
@@ -294,10 +304,11 @@ $(function() {
 	    moveUserSign(latLng);
 	    locationSpinner.hide();
 	    locationDiv.removeClass().addClass('active');
+	    mpq.track('geolocate success', global());
 	}, function() {
-	    console.log('Geolocation failed.');
 	    locationSpinner.hide();
 	    locationDiv.removeClass().addClass('inactive');
+	    mpq.track('geolocate failure', global());
 	});
     }
 
@@ -312,9 +323,10 @@ $(function() {
 		if (!locationDiv.hasClass('loading'))
 		    // not currently geolocating
 		    locationDiv.removeClass().addClass('inactive');
+		mpq.track('geocode success', global());
 	    }
 	    else
-		console.log('Geocode failed: ' + status);
+		mpq.track('geocode failure', global());
 	});
     }
 
@@ -386,15 +398,35 @@ $(function() {
 	});
     }
 
-    $('#location').click(geolocate);
-    $('#address-form').submit(function(e) {
+    $(window).bind('hashchange', hashChange);
+    $('#location').click(function() {
+	mpq.track('geolocate', global());
+	geolocate();
+    });
+    $('#address-form').submit(function() {
 	$('#address').blur();
+	mpq.track('geocode', global());
 	geocode();
 	return false;
     });
-    $(window).bind('hashchange', hashChange);
+    $('#by a').click(function(e) {
+	e.preventDefault();
+	var url = this.href;
+	mpq.track('harold', global(), function () {
+	    window.location = url;
+	});
+    });
+    twttr.events.bind('click', function(e) {
+	mpq.track('twitter click', global({'twitter region': e.region}));
+    });
+    twttr.events.bind('tweet', function(e) {
+	mpq.track('twitter tweet', global());
+    });
+    twttr.events.bind('follow', function(e) {
+	mpq.track('twitter follow', global({'twitter followee': e.data.screen_name}));
+    });
 
-    mpq.track("view", {hash: !!location.hash});
+    mpq.track('view', global());
 
     if (location.hash)
 	hashChange();
@@ -402,3 +434,12 @@ $(function() {
 	geolocate();
     showGrid();
 });
+
+window.fbAsyncInit = function() {
+    FB.Event.subscribe('edge.create', function() {
+	mpq.track('facebook like', global());
+    });
+    FB.Event.subscribe('edge.remove', function() {
+	mpq.track('facebook unlike', global());
+    });
+};

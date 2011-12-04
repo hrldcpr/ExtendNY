@@ -31,6 +31,15 @@ a:hover {
     color: white;
 }
 
+.left {
+    float: left;
+    margin-right: 10px;
+}
+.right {
+    float: right;
+    margin-left: 10px;
+}
+
 #description {
     font-weight: bold;
     text-shadow: 0px 1px 0px black;
@@ -41,13 +50,20 @@ a:hover {
     padding-top: 4px;
 }
 
-.left {
-    float: left;
-    margin-right: 10px;
+#twitter {
+    overflow: hidden;
+    width: 110px;
 }
-.right {
-    float: right;
-    margin-left: 10px;
+#twitter.no-count {
+    width: 55px;
+}
+
+#facebook {
+    overflow: hidden;
+    width: 80px;
+}
+#facebook.no-count {
+    width: 50px;
 }
 
 #map {

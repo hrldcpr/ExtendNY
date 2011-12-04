@@ -3,13 +3,13 @@
   <head>
     <title>ExtendNY - New York City Extended</title>
 
-    <meta property="og:title" content="ExtendNY - New York City Extended" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="http://extendny.com/" />
-    <meta property="og:image" content="http://extendny.com/extendny.png" />
-    <meta property="og:site_name" content="ExtendNY" />
-    <meta property="og:description" content="The Manhattan Grid extended to every point on Earth." />
-    <meta property="fb:admins" content="700470" />
+    <meta property="og:title" content="ExtendNY - New York City Extended"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="http://extendny.com/"/>
+    <meta property="og:image" content="http://extendny.com/extendny.png"/>
+    <meta property="og:site_name" content="ExtendNY"/>
+    <meta property="og:description" content="The Manhattan Grid extended to every point on Earth."/>
+    <meta property="fb:admins" content="700470"/>
 
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
     <meta charset="UTF-8"/>
@@ -19,12 +19,12 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
     <script src="http://maps.googleapis.com/maps/api/js?libraries=geometry&sensor=true"></script>
     <script src="extendny.js"></script>
-    <script type="text/javascript">
+    <script>
 //<!-- start Mixpanel
 var mpq=[];mpq.push(["init","0c879ef4149a1821c404b5ec0b9b3ccd"]);(function(){var b,a,e,d,c;b=document.createElement("script");b.type="text/javascript";b.async=true;b.src=(document.location.protocol==="https:"?"https:":"http:")+"//api.mixpanel.com/site_media/js/api/mixpanel.js";a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(b,a);e=function(f){return function(){mpq.push([f].concat(Array.prototype.slice.call(arguments,0)))}};d=["init","track","track_links","track_forms","register","register_once","identify","name_tag","set_config"];for(c=0;c<d.length;c++){mpq[d[c]]=e(d[c])}})();
 // end Mixpanel -->
     </script>
-    <script type="text/javascript">
+    <script>
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', 'UA-26539401-1']);
 _gaq.push(['_trackPageview']);
@@ -36,6 +36,16 @@ _gaq.push(['_trackPageview']);
     </script>
   </head>
   <body>
+    <div id="fb-root"></div>
+    <script>
+(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=146819178752135";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+    </script>
 
     <div id="header">
       <div id="description" class="left">
@@ -44,12 +54,19 @@ _gaq.push(['_trackPageview']);
       <div id="by" class="right">
 	by <a href="http://twitter.com/#!/hrldcpr">harold cooper</a>
       </div>
-      <div class="right">
-	<iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fextendny.com%2F&amp;send=false&amp;layout=button_count&amp;width=450&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font&amp;height=21&amp;appId=146819178752135" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:80px; height:20px;" allowTransparency="true"></iframe>
+      <div class="right" id="facebook">
+	<div class="fb-like" data-href="http://extendny.com/" data-send="false" data-layout="button_count" data-width="80" data-show-faces="false"></div>
       </div>
-      <div class="right">
-	<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://extendny.com" data-count="horizontal" data-related="hrldcpr:Creator of ExtendNY.">Tweet</a><script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
+      <div class="right" id="twitter">
+	<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://extendny.com" data-count="horizontal" data-related="hrldcpr:Creator of ExtendNY.">Tweet</a><script src="//platform.twitter.com/widgets.js"></script>
       </div>
+      <script>
+// ideally this runs right after twitter and facebook divs have been added to the DOM
+if (abTest == 'b') {
+    $('#twitter').addClass('no-count');
+    $('#facebook').addClass('no-count');
+}
+      </script>
     </div>
 
     <div id="map">
