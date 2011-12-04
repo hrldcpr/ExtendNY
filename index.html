@@ -62,7 +62,7 @@ _gaq.push(['_trackPageview']);
       </div>
       <script>
 // ideally this runs right after twitter and facebook divs have been added to the DOM
-if (abTest == 'b') {
+if (!showCounts) {
     $('#twitter').addClass('no-count');
     $('#facebook').addClass('no-count');
 }

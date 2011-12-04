@@ -204,10 +204,10 @@ SignOverlay.prototype.draw = function() {
 
 
 var fromHash = !!location.hash;
-var abTest = Math.random() < 0.5 ? 'a' : 'b';
+var showCounts = Math.random() < 0.5;
 function global(props) {
     if (!props) props = {};
-    props.ab = abTest;
+    props.counts = showCounts;
     props.hash = fromHash;
     return props;
 }
