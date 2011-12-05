@@ -209,6 +209,7 @@ function global(props) {
     if (!props) props = {};
     props.counts = showCounts;
     props.hash = fromHash;
+    props.geolocation = !!navigator.geolocation;
     return props;
 }
 
@@ -295,6 +296,7 @@ $(function() {
     }
 
     function geolocate() {
+	if (!navigator.geolocation) return;
 	locationDiv.removeClass().addClass('loading');
 	locationSpinner.show();
 	navigator.geolocation.getCurrentPosition(function(position) {
