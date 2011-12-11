@@ -52,18 +52,12 @@ a:hover {
 
 #twitter {
     overflow: hidden;
-    width: 110px;
-}
-#twitter.no-count {
-    width: 55px;
+    width: 100px;
 }
 
 #facebook {
     overflow: hidden;
     width: 80px;
-}
-#facebook.no-count {
-    width: 50px;
 }
 
 #map {

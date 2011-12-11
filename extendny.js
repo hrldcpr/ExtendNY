@@ -204,10 +204,8 @@ SignOverlay.prototype.draw = function() {
 
 
 var fromHash = !!location.hash;
-var showCounts = Math.random() < 0.5;
 function global(props) {
     if (!props) props = {};
-    props.counts = showCounts;
     props.hash = fromHash;
     props.geolocation = !!navigator.geolocation;
     return props;
