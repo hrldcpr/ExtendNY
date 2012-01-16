@@ -1,0 +1,3 @@
+[submodule "etc/projection/mercator"]
+	path = etc/projection/mercator
+	url = git://github.com/hrldcpr/mercator.py.git
