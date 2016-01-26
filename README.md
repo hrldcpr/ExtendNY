@@ -1,3 +1,4 @@
-code for http://extendny.com
+# [ExtendNY](http://extendny.com)
+![screenshot](https://x.st/images/extendny.jpg)
 
-the Manhattan grid extended to every point on Earth
+An interactive map which extends the Manhattan Grid of streets and avenues to every point on Earth.
