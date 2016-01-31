@@ -50,16 +50,6 @@ a:hover {
     padding-top: 4px;
 }
 
-#twitter {
-    overflow: hidden;
-    width: 100px;
-}
-
-#facebook {
-    overflow: hidden;
-    width: 85px;
-}
-
 #map {
     position: absolute;
     width: 100%;
