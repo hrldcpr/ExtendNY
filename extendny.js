@@ -409,13 +409,6 @@ $(function() {
 	geocode();
 	return false;
     });
-    $('#by a').click(function(e) {
-	e.preventDefault();
-	var url = this.href;
-	mpq.track('harold', global(), function () {
-	    window.location = url;
-	});
-    });
     twttr.events.bind('click', function(e) {
 	mpq.track('twitter click', global({'twitter region': e.region}));
     });
