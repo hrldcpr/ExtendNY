@@ -409,15 +409,6 @@ $(function() {
 	geocode();
 	return false;
     });
-    twttr.events.bind('click', function(e) {
-	mpq.track('twitter click', global({'twitter region': e.region}));
-    });
-    twttr.events.bind('tweet', function(e) {
-	mpq.track('twitter tweet', global());
-    });
-    twttr.events.bind('follow', function(e) {
-	mpq.track('twitter follow', global({'twitter followee': e.data.screen_name}));
-    });
 
     mpq.track('view', global());
 
@@ -427,12 +418,3 @@ $(function() {
 	geolocate();
     showGrid();
 });
-
-window.fbAsyncInit = function() {
-    FB.Event.subscribe('edge.create', function() {
-	mpq.track('facebook like', global());
-    });
-    FB.Event.subscribe('edge.remove', function() {
-	mpq.track('facebook unlike', global());
-    });
-};
