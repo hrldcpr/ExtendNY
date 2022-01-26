@@ -111,12 +111,12 @@ a:hover {
 
 @media screen and (max-width: 830px) {
     #description {
-	display: none;
+        display: none;
     }
 }
 
 @media screen and (max-width: 480px) {
     #header {
-	padding: 5px;
+        padding: 5px;
     }
 }
