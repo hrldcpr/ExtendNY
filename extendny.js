@@ -213,6 +213,7 @@ function global(props) {
 
 $(function() {
     map = new gmaps.Map($('#gmap')[0], {
+        clickableIcons: false,
         disableDefaultUI: true,
         zoomControl: true,
         zoom: 2,
