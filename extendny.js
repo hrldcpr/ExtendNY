@@ -333,21 +333,16 @@ $(function() {
     gmaps.event.addListener(map, 'zoom_changed', showGrid);
     gmaps.event.addListener(map, 'dragend', showGrid);
 
-    var mouse, mouseAve, mouseAveName, mouseStreet, mouseStreetName, mouseRoads, mouseTimer, mouseRoadsTimer;
-    function setupMouse() {
-        if (!mouse) {
-            mouse = $('#mouse').show();
-            mouseAve = mouse.find('.ave');
-            mouseAveName = mouseAve.find('.name');
-            mouseStreet = mouse.find('.street');
-            mouseStreetName = mouseStreet.find('.name');
-        }
-    }
-    gmaps.event.addListener(map, 'mousemove', function(e) {
+    var mouse = $('#mouse');
+    var mouseAve = mouse.find('.ave');
+    var mouseAveName = mouseAve.find('.name');
+    var mouseStreet = mouse.find('.street');
+    var mouseStreetName = mouseStreet.find('.name');
+    var mouseRoads, mouseTimer, mouseRoadsTimer;
+    function mouseMoved(e) {
         if (mouseTimer) return; // don't constantly run
         mouseTimer = setTimeout(function () {
             mouseTimer = null;
-            setupMouse();
             var pos = findIntersection(e.latLng);
 
             if (mouseRoadsTimer)
@@ -385,10 +380,17 @@ $(function() {
                 top: e.pixel.y + 5, left: e.pixel.x + 5,
                 '-moz-transform': transform, '-webkit-transform': transform
             });
+            mouse.show();
         }, 10);
 
         e.returnValue = false;
+    }
+    gmaps.event.addListener(map, 'mousemove', mouseMoved);
+    gmaps.event.addListener(map, 'click', mouseMoved); // for mobile
+    gmaps.event.addListener(map, 'dragstart', function() {
+        mouse.hide();
     });
+
 
     if (locationDiv) {
         gmaps.event.addListener(map, 'dragstart', function() {
