@@ -348,46 +348,46 @@ $(function() {
         mouseTimer = setTimeout(function () {
             mouseTimer = null;
             setupMouse();
-                var pos = findIntersection(e.latLng);
+            var pos = findIntersection(e.latLng);
 
-                if (mouseRoadsTimer)
-                    clearTimeout(mouseRoadsTimer);
-                mouseRoadsTimer = setTimeout(function() {
-                    mouseRoadsTimer = null;
-                    if (mouseRoads) {
-                        if (mouseRoads.ave == pos.ave && mouseRoads.street == pos.street)
-                            return;
-                        mouseRoads.aveOverlay.setMap(null);
-                        mouseRoads.streetOverlay.setMap(null);
-                    }
-                    var extra = {map: map, strokeColor: signGreen, zIndex: 10};
-                    mouseRoads = {ave: pos.ave, street: pos.street,
-                                  aveOverlay: getAveLine(pos.ave, extra),
-                                  streetOverlay: getStreetCircle(pos.street, extra)};
-                }, 100);
+            if (mouseRoadsTimer)
+                clearTimeout(mouseRoadsTimer);
+            mouseRoadsTimer = setTimeout(function() {
+                mouseRoadsTimer = null;
+                if (mouseRoads) {
+                    if (mouseRoads.ave == pos.ave && mouseRoads.street == pos.street)
+                        return;
+                    mouseRoads.aveOverlay.setMap(null);
+                    mouseRoads.streetOverlay.setMap(null);
+                }
+                var extra = {map: map, strokeColor: signGreen, zIndex: 10};
+                mouseRoads = {ave: pos.ave, street: pos.street,
+                              aveOverlay: getAveLine(pos.ave, extra),
+                              streetOverlay: getStreetCircle(pos.street, extra)};
+            }, 100);
 
-                mouseAveName.html(getAveString(pos.ave));
-                mouseStreetName.html(getStreetString(pos.street));
+            mouseAveName.html(getAveString(pos.ave));
+            mouseStreetName.html(getStreetString(pos.street));
 
-                var phi = gspherical.computeHeading(e.latLng, northPole) - 90;
-                if (phi < -90) phi += 180;
+            var phi = gspherical.computeHeading(e.latLng, northPole) - 90;
+            if (phi < -90) phi += 180;
 
-                var transform = 'rotate(' + phi + 'deg)';
-                mouseAve.css({
-                    top: e.pixel.y + 5, left: e.pixel.x + 5,
-                    '-moz-transform': transform, '-webkit-transform': transform
-                });
+            var transform = 'rotate(' + phi + 'deg)';
+            mouseAve.css({
+                top: e.pixel.y + 5, left: e.pixel.x + 5,
+                '-moz-transform': transform, '-webkit-transform': transform
+            });
 
-                phi += 90;
-                if (phi > 90) phi -= 180;
-                transform = 'rotate(' + phi + 'deg)';
-                mouseStreet.css({
-                    top: e.pixel.y + 5, left: e.pixel.x + 5,
-                    '-moz-transform': transform, '-webkit-transform': transform
-                });
+            phi += 90;
+            if (phi > 90) phi -= 180;
+            transform = 'rotate(' + phi + 'deg)';
+            mouseStreet.css({
+                top: e.pixel.y + 5, left: e.pixel.x + 5,
+                '-moz-transform': transform, '-webkit-transform': transform
+            });
         }, 10);
 
-            e.returnValue = false;
+        e.returnValue = false;
     });
 
     if (locationDiv) {
