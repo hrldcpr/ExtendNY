@@ -44,6 +44,9 @@ a:hover {
     font-weight: bold;
     text-shadow: 0px 1px 0px black;
 }
+#description::after {
+    content: "The Manhattan Grid extended to every point on Earth.";
+}
 
 #by {
     font-size: 12px;
@@ -110,8 +113,8 @@ a:hover {
 
 
 @media screen and (max-width: 830px) {
-    #description {
-        display: none;
+    #description::after {
+        content: "🗽 extended to every point on 🌍";
     }
 }
 
