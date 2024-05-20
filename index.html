@@ -1,38 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>ExtendNY - New York City Extended</title>
 
-    <meta property="og:title" content="ExtendNY - New York City Extended"/>
-    <meta property="og:type" content="website"/>
-    <meta property="og:url" content="http://extendny.com/"/>
-    <meta property="og:image" content="http://extendny.com/extendny.png"/>
-    <meta property="og:site_name" content="ExtendNY"/>
-    <meta property="og:description" content="The Manhattan Grid extended to every point on Earth."/>
-    <meta property="fb:admins" content="700470"/>
+    <meta property="og:title" content="ExtendNY - New York City Extended" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://extendny.com/" />
+    <meta property="og:image" content="http://extendny.com/extendny.png" />
+    <meta property="og:site_name" content="ExtendNY" />
+    <meta
+      property="og:description"
+      content="The Manhattan Grid extended to every point on Earth."
+    />
+    <meta property="fb:admins" content="700470" />
 
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
-    <meta charset="UTF-8"/>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta charset="UTF-8" />
 
-    <link href="extendny.css" rel="stylesheet" type="text/css"/>
+    <link href="extendny.css" rel="stylesheet" type="text/css" />
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
     <script src="//maps.googleapis.com/maps/api/js?libraries=geometry&key=AIzaSyCewcEYE5EJdHiWzz2sAm_HKQOaBo-kJo8"></script>
     <script src="extendny.js"></script>
     <script>
-//<!-- start Mixpanel
-var mpq=[];mpq.push(["init","0c879ef4149a1821c404b5ec0b9b3ccd"]);(function(){var b,a,e,d,c;b=document.createElement("script");b.type="text/javascript";b.async=true;b.src=(document.location.protocol==="https:"?"https:":"http:")+"//api.mixpanel.com/site_media/js/api/mixpanel.js";a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(b,a);e=function(f){return function(){mpq.push([f].concat(Array.prototype.slice.call(arguments,0)))}};d=["init","track","track_links","track_forms","register","register_once","identify","name_tag","set_config"];for(c=0;c<d.length;c++){mpq[d[c]]=e(d[c])}})();
-// end Mixpanel -->
+      //<!-- start Mixpanel
+      var mpq = [];
+      mpq.push(["init", "0c879ef4149a1821c404b5ec0b9b3ccd"]);
+      (function () {
+        var b, a, e, d, c;
+        b = document.createElement("script");
+        b.type = "text/javascript";
+        b.async = true;
+        b.src =
+          (document.location.protocol === "https:" ? "https:" : "http:") +
+          "//api.mixpanel.com/site_media/js/api/mixpanel.js";
+        a = document.getElementsByTagName("script")[0];
+        a.parentNode.insertBefore(b, a);
+        e = function (f) {
+          return function () {
+            mpq.push([f].concat(Array.prototype.slice.call(arguments, 0)));
+          };
+        };
+        d = [
+          "init",
+          "track",
+          "track_links",
+          "track_forms",
+          "register",
+          "register_once",
+          "identify",
+          "name_tag",
+          "set_config",
+        ];
+        for (c = 0; c < d.length; c++) {
+          mpq[d[c]] = e(d[c]);
+        }
+      })();
+      // end Mixpanel -->
     </script>
     <script>
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-26539401-1']);
-_gaq.push(['_trackPageview']);
-(function() {
-  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
+      var _gaq = _gaq || [];
+      _gaq.push(["_setAccount", "UA-26539401-1"]);
+      _gaq.push(["_trackPageview"]);
+      (function () {
+        var ga = document.createElement("script");
+        ga.type = "text/javascript";
+        ga.async = true;
+        ga.src =
+          ("https:" == document.location.protocol
+            ? "https://ssl"
+            : "http://www") + ".google-analytics.com/ga.js";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(ga, s);
+      })();
     </script>
   </head>
   <body>
@@ -46,23 +86,32 @@ _gaq.push(['_trackPageview']);
     <div id="map">
       <div id="gmap"></div>
       <div id="user">
-        <div class="ave sign"><span class="name"></span>&nbsp;<sup>AVE</sup></div>
-        <div class="street sign"><span class="name"></span>&nbsp;<sup>ST</sup></div>
+        <div class="ave sign">
+          <span class="name"></span>&nbsp;<sup>AVE</sup>
+        </div>
+        <div class="street sign">
+          <span class="name"></span>&nbsp;<sup>ST</sup>
+        </div>
       </div>
       <div id="mouse">
-        <div class="ave sign"><span class="name"></span>&nbsp;<sup>AVE</sup></div>
-        <div class="street sign"><span class="name"></span>&nbsp;<sup>ST</sup></div>
+        <div class="ave sign">
+          <span class="name"></span>&nbsp;<sup>AVE</sup>
+        </div>
+        <div class="street sign">
+          <span class="name"></span>&nbsp;<sup>ST</sup>
+        </div>
       </div>
     </div>
 
     <div id="address-control">
-      <form id="address-form"><input id="address" type="text" value="New York, NY"/></form>
+      <form id="address-form">
+        <input id="address" type="text" value="New York, NY" />
+      </form>
     </div>
     <div id="location-control">
       <div id="location" class="inactive" title="Geolocate">
         <div class="spinner"></div>
       </div>
     </div>
-
   </body>
 </html>
