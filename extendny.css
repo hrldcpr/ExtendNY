@@ -1,125 +1,135 @@
 * {
-    margin: 0px;
-    padding: 0px;
+  margin: 0px;
+  padding: 0px;
 }
 
 body {
-    height: 100%;
-    font-family: Helvetica, sans-serif;
+  height: 100%;
+  font-family: Helvetica, sans-serif;
 }
 
 a {
-    text-decoration: inherit;
-    color: inherit;
+  text-decoration: inherit;
+  color: inherit;
 }
 
 a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 #header {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    height: 20px; /* 20 + 2*5 + 1 = 31 */
-    padding: 5px 50px;
-    border-bottom: 1px solid #444;
-    z-index: 10;
-    background: #888;
-    box-shadow: 0px 2px 0px rgba(0,0,0,0.4);
-    color: white;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  height: 20px; /* 20 + 2*5 + 1 = 31 */
+  padding: 5px 50px;
+  border-bottom: 1px solid #444;
+  z-index: 10;
+  background: #888;
+  box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.4);
+  color: white;
 }
 
 .left {
-    float: left;
-    margin-right: 10px;
+  float: left;
+  margin-right: 10px;
 }
 .right {
-    float: right;
-    margin-left: 10px;
+  float: right;
+  margin-left: 10px;
 }
 
 #description {
-    font-weight: bold;
-    text-shadow: 0px 1px 0px black;
+  font-weight: bold;
+  text-shadow: 0px 1px 0px black;
 }
 #description::after {
-    content: "The Manhattan Grid extended to every point on Earth.";
+  content: "The Manhattan Grid extended to every point on Earth.";
 }
 
 #by {
-    font-size: 12px;
-    padding-top: 4px;
+  font-size: 12px;
+  padding-top: 4px;
 }
 
 #map {
-    position: absolute;
-    width: 100%;
-    top: 31px;
-    bottom: 0px;
+  position: absolute;
+  width: 100%;
+  top: 31px;
+  bottom: 0px;
 }
 
 #gmap {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+  position: absolute;
+  width: 100%;
+  height: 100%;
 }
 
 .sign {
-    position: absolute;
-    pointer-events: none;
-    color: #DAE3E6;
-    background: #2C7669;
-    padding: 5px;
-    opacity: 0.8;
-    border-radius: 5px;
-    border: 1px solid #DAE3E6;
-    box-shadow: 1px 1px 1px black;
-    -moz-transform-origin: 0px 0px;
-    -webkit-transform-origin: 0px 0px;
+  position: absolute;
+  pointer-events: none;
+  color: #dae3e6;
+  background: #2c7669;
+  padding: 5px;
+  opacity: 0.8;
+  border-radius: 5px;
+  border: 1px solid #dae3e6;
+  box-shadow: 1px 1px 1px black;
+  -moz-transform-origin: 0px 0px;
+  -webkit-transform-origin: 0px 0px;
 }
 
-#user,#mouse {
-    display: none;
+#user,
+#mouse {
+  display: none;
 }
 #user .sign {
-    border: 2px solid #FF7E73; /*#3B99FF;*/
+  border: 2px solid #ff7e73; /*#3B99FF;*/
 }
 
-#address-control { padding: 5px; }
+#address-control {
+  padding: 5px;
+}
 
-#location-control { padding: 5px; }
+#location-control {
+  padding: 5px;
+}
 #location {
-    display: none;
-    position: relative;
-    cursor: pointer;
-    width: 22px;
-    height: 22px;
-    background-image: url("my_location.png");
+  display: none;
+  position: relative;
+  cursor: pointer;
+  width: 22px;
+  height: 22px;
+  background-image: url("my_location.png");
 }
-#location.inactive { background-position: 0px 0px; }
-#location.loading { background-position: 0px -22px; }
-#location.active { background-position: 0px -44px; }
+#location.inactive {
+  background-position: 0px 0px;
+}
+#location.loading {
+  background-position: 0px -22px;
+}
+#location.active {
+  background-position: 0px -44px;
+}
 #location .spinner {
-    display: none;
-    background-image: url("my_location_button_spinner.gif");
-    position: absolute;
-    left: 6px;
-    top: 4px;
-    width: 10px;
-    height: 10px;
+  display: none;
+  background-image: url("my_location_button_spinner.gif");
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
 }
-
 
 @media screen and (max-width: 830px) {
-    #description::after {
-        content: "🗽 extended to every point on 🌍";
-    }
+  #description::after {
+    content: "🗽 extended to every point on 🌍";
+  }
 }
 
 @media screen and (max-width: 480px) {
-    #header {
-        padding: 5px;
-    }
+  #header {
+    padding: 5px;
+  }
 }
