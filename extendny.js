@@ -241,14 +241,6 @@ SignOverlay.prototype.draw = function () {
   });
 };
 
-var fromHash = !!location.hash;
-function global(props) {
-  if (!props) props = {};
-  props.hash = fromHash;
-  props.geolocation = !!navigator.geolocation;
-  return props;
-}
-
 $(function () {
   map = new gmaps.Map($("#gmap")[0], {
     clickableIcons: false,
@@ -346,12 +338,10 @@ $(function () {
         moveUserSign(latLng);
         locationSpinner.hide();
         locationDiv.removeClass().addClass("active");
-        mpq.track("geolocate success", global());
       },
       function () {
         locationSpinner.hide();
         locationDiv.removeClass().addClass("inactive");
-        mpq.track("geolocate failure", global());
       },
     );
   }
@@ -367,8 +357,7 @@ $(function () {
         if (!locationDiv.hasClass("loading"))
           // not currently geolocating
           locationDiv.removeClass().addClass("inactive");
-        mpq.track("geocode success", global());
-      } else mpq.track("geocode failure", global());
+      }
     });
   }
 
@@ -449,17 +438,13 @@ $(function () {
 
   $(window).bind("hashchange", hashChange);
   $("#location").click(function () {
-    mpq.track("geolocate", global());
     geolocate();
   });
   $("#address-form").submit(function () {
     $("#address").blur();
-    mpq.track("geocode", global());
     geocode();
     return false;
   });
-
-  mpq.track("view", global());
 
   if (location.hash) hashChange();
   else geolocate();
