@@ -4,17 +4,17 @@ var gspherical = gmaps.geometry.spherical;
 var radius = 6378137; // google maps earth radius, in meters
 var circumference = 2 * Math.PI * radius;
 
-var manhattan = new gmaps.LatLng(40.72328050717967, -73.98846042169191);
-var theta = 28.8; // 1st ave heading in degrees
-var nAves = 160000;
-var nStreets = 254000;
+var chicago = new gmaps.LatLng(41.8820515627228, -87.62782567168699);
+var theta = -1.3; // 1st ave heading in degrees
+var nAves = 24615;
+var nStreets = 25400;
 
 var kRoad = 1 / 8; // affects distance between displayed roads
 
-var antipode = new gmaps.LatLng(-manhattan.lat(), manhattan.lng() + 180);
-var northPole = gspherical.computeOffset(manhattan, circumference / 4, theta);
+var antipode = new gmaps.LatLng(-chicago.lat(), chicago.lng() + 180);
+var northPole = gspherical.computeOffset(chicago, circumference / 4, theta);
 var southPole = gspherical.computeOffset(
-  manhattan,
+  chicago,
   circumference / 4,
   theta + 180,
 );
@@ -30,7 +30,7 @@ var signGreen = "#2c7669";
 function getAveOrigin(i) {
   // at equator, nAves should go a distance of `circumference`:
   return gspherical.computeOffset(
-    manhattan,
+    chicago,
     (i * circumference) / nAves,
     theta - 90,
   );
@@ -247,13 +247,13 @@ $(function () {
     disableDefaultUI: true,
     zoomControl: true,
     zoom: 2,
-    center: manhattan,
+    center: chicago,
     mapTypeId: gmaps.MapTypeId.ROADMAP,
     styles: [
-      {
-        featureType: "road",
-        stylers: [{ visibility: "off" }],
-      },
+      // {
+      //   featureType: "road",
+      //   stylers: [{ visibility: "off" }],
+      // },
     ],
   });
 
