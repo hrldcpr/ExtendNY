@@ -108,48 +108,28 @@ function findIntersection(pos) {
   };
 }
 
-function getOrdinal(n, useSuffix) {
-  if (useSuffix) {
-    var suffix = "th";
-    var tens = n % 100;
-    if (tens <= 3 || tens >= 21) {
-      var ones = n % 10;
-      if (ones == 1) suffix = "st";
-      if (ones == 2) suffix = "nd";
-      if (ones == 3) suffix = "rd";
-    }
-  }
+function getOrdinal(n) {
   n += "";
 
   // comma-delimit thousands:
   var pat = /(\d+)(\d{3})/;
   while (pat.test(n)) n = n.replace(pat, "$1,$2");
 
-  if (useSuffix) n += suffix;
   return n;
 }
 
-function getStreetString(street, useSuffix) {
+function getStreetString(street) {
   if (street >= 0) street += 1;
   var south = street < 0;
   if (south) street = -street;
-  return (south ? "S&nbsp;" : "") + getOrdinal(street, useSuffix);
+  return (south ? "S&nbsp;" : "") + getOrdinal(street);
 }
 
-function getAveString(ave, useSuffix) {
+function getAveString(ave) {
   if (ave >= 0) ave += 1;
   var east = ave < 0;
   if (east) ave = -ave;
-  return (east ? "E&nbsp;" : "") + getOrdinal(ave, useSuffix);
-}
-
-function getIntersectionString(pos) {
-  return (
-    getStreetString(pos.street, true) +
-    " Street and " +
-    getAveString(pos.ave, true) +
-    " Avenue"
-  );
+  return (east ? "E&nbsp;" : "") + getOrdinal(ave);
 }
 
 var oldHash;
