@@ -8,6 +8,7 @@ var chicago = new gmaps.LatLng(41.88225, -87.62783);
 var theta = -1.1; // State Street heading in degrees
 var nAves = 24700;
 var nStreets = 24700;
+var kAddress = 800; // address units per "block"
 
 var kRoad = 1 / 8; // affects distance between displayed roads
 
@@ -115,7 +116,7 @@ function getOrdinal(n) {
 
 function getStreetString(street) {
   if (street === 0) return "0&nbsp;N/S";
-  street *= 800;
+  street *= kAddress;
   var south = street < 0;
   if (south) street = -street;
   return getOrdinal(street) + "&nbsp;" + (south ? "S" : "N");
@@ -123,7 +124,7 @@ function getStreetString(street) {
 
 function getAveString(ave) {
   if (ave === 0) return "0&nbsp;E/W";
-  ave *= 800;
+  ave *= kAddress;
   var east = ave < 0;
   if (east) ave = -ave;
   return getOrdinal(ave) + "&nbsp;" + (east ? "E" : "W");
