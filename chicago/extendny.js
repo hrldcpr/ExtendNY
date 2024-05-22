@@ -4,10 +4,10 @@ var gspherical = gmaps.geometry.spherical;
 var radius = 6378137; // google maps earth radius, in meters
 var circumference = 2 * Math.PI * radius;
 
-var chicago = new gmaps.LatLng(41.8820515627228, -87.62782567168699);
-var theta = -1.3; // 1st ave heading in degrees
-var nAves = 24615;
-var nStreets = 25400;
+var chicago = new gmaps.LatLng(41.88225, -87.62783);
+var theta = -1.1; // State Street heading in degrees
+var nAves = 24700;
+var nStreets = 24700;
 
 var kRoad = 1 / 8; // affects distance between displayed roads
 
