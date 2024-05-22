@@ -227,12 +227,15 @@ $(function () {
     zoom: 2,
     center: chicago,
     mapTypeId: gmaps.MapTypeId.ROADMAP,
-    styles: [
-      // {
-      //   featureType: "road",
-      //   stylers: [{ visibility: "off" }],
-      // },
-    ],
+    styles:
+      new URLSearchParams(location.search).get("show-roads") === null
+        ? [
+            {
+              featureType: "road",
+              stylers: [{ visibility: "off" }],
+            },
+          ]
+        : [],
   });
 
   var locationDiv, locationSpinner;
