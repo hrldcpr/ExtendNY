@@ -110,26 +110,23 @@ function findIntersection(pos) {
 
 function getOrdinal(n) {
   n += "";
-
-  // comma-delimit thousands:
-  var pat = /(\d+)(\d{3})/;
-  while (pat.test(n)) n = n.replace(pat, "$1,$2");
-
   return n;
 }
 
 function getStreetString(street) {
-  if (street >= 0) street += 1;
+  if (street === 0) return "0&nbsp;N/S";
+  street *= 800;
   var south = street < 0;
   if (south) street = -street;
-  return (south ? "S&nbsp;" : "") + getOrdinal(street);
+  return getOrdinal(street) + "&nbsp;" + (south ? "S" : "N");
 }
 
 function getAveString(ave) {
-  if (ave >= 0) ave += 1;
+  if (ave === 0) return "0&nbsp;E/W";
+  ave *= 800;
   var east = ave < 0;
   if (east) ave = -ave;
-  return (east ? "E&nbsp;" : "") + getOrdinal(ave);
+  return getOrdinal(ave) + "&nbsp;" + (east ? "E" : "W");
 }
 
 var oldHash;
