@@ -171,7 +171,7 @@ function parseHash() {
     if (groups[3]) ave = -ave;
     else ave -= 1;
 
-    return { ave: ave, street: street, zoom: zoom };
+    return { ave, street, zoom };
   }
 }
 
