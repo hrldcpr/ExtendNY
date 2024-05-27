@@ -140,36 +140,34 @@ function getAveString(ave) {
 
 var oldHash;
 function updateHash(pos, zoom) {
-  var street = pos.street,
-    south = "";
+  var street = pos.street * kAddress,
+    south = "N";
   if (street < 0) {
     street = -street;
     south = "S";
-  } else street += 1;
-  var ave = pos.ave,
-    east = "";
+  }
+  var ave = pos.ave * kAddress,
+    east = "W";
   if (ave < 0) {
     ave = -ave;
     east = "E";
-  } else ave += 1;
+  }
   location.hash = oldHash =
-    "#" + south + street + ".St." + east + ave + ".Ave/" + zoom;
+    "#" + street + south + "." + ave + east + "/" + zoom;
 }
 
 function parseHash() {
   if (location.hash == oldHash) return;
   oldHash = location.hash;
-  var groups = /#(S?)\W*(\d+)\W*St\W*(E?)\W*(\d+)\W*Ave\W+(\d+)/i.exec(
+  var groups = /#(\d+)\W*([NS]?)\W*(\d+)\W*([EW]?)\W+(\d+)/i.exec(
     location.hash,
   );
   if (groups) {
     var zoom = parseInt(groups[5]);
-    var street = parseInt(groups[2]);
-    var ave = parseInt(groups[4]);
-    if (groups[1]) street = -street;
-    else street -= 1;
-    if (groups[3]) ave = -ave;
-    else ave -= 1;
+    var street = Math.round(parseInt(groups[1]) / kAddress);
+    var ave = Math.round(parseInt(groups[3]) / kAddress);
+    if (groups[2] === "S") street = -street;
+    if (groups[4] === "E") ave = -ave;
 
     return { ave, street, zoom };
   }
