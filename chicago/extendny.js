@@ -16,7 +16,7 @@ var kAddress = Math.min(
   800,
 );
 var nAves = 19760000 / kAddress;
-var nStreets = 19760000 / kAddress;
+var nStreets = 9880000 / kAddress;
 
 var kRoad = 1 / 8; // affects distance between displayed roads
 
