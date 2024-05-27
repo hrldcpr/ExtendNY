@@ -6,9 +6,17 @@ var circumference = 2 * Math.PI * radius;
 
 var chicago = new gmaps.LatLng(41.88225, -87.62783);
 var theta = -1.1; // State Street heading in degrees
-var nAves = 24700;
-var nStreets = 24700;
-var kAddress = 800; // address units per "block"
+
+// address units per "block", between 100 and 800, defaults to 400:
+var kAddress = Math.min(
+  Math.max(
+    parseInt(new URLSearchParams(location.search).get("block-size")) || 400,
+    100,
+  ),
+  800,
+);
+var nAves = 19760000 / kAddress;
+var nStreets = 19760000 / kAddress;
 
 var kRoad = 1 / 8; // affects distance between displayed roads
 
